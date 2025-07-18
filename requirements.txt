@@ -1,0 +1,8 @@
+Django>=3.2,<4.0
+requests
+mysqlclient
+djangorestframework
+python-dotenv
+django-cors-headers
+django-filter
+dotenv
