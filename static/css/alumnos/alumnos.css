@@ -1,0 +1,160 @@
+/* myproject/static/css/styles.css */
+
+/* Variables de color para fácil mantenimiento */
+:root {
+    --primary-red: #b91c1c; /* red-700 */
+    --accent-red: #dc2626; /* red-600 */
+    --light-bg: #f9fafb; /* gray-50 */
+    --dark-text: #1f2937; /* gray-800 */
+    --medium-text: #374151; /* gray-700 */
+    --light-border: #e5e7eb; /* gray-200 */
+    --input-border: #d1d5db; /* gray-300 */
+    --hover-bg-light: #fee2e2; /* red-100 */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--medium-text);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    padding: 2rem;
+}
+
+/* Títulos */
+h1 {
+    color: var(--primary-red);
+}
+
+h2 {
+    color: var(--dark-text);
+}
+
+/* Botones Generales */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem; /* rounded-lg */
+    font-weight: 600; /* font-semibold */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    text-decoration: none; /* Para enlaces que actúan como botones */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Botón Primario (Rojo) */
+.btn-primary {
+    background-color: var(--primary-red);
+    color: #ffffff;
+    border: 1px solid var(--primary-red);
+}
+.btn-primary:hover {
+    background-color: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+/* Botón Secundario (Gris) */
+.btn-secondary {
+    background-color: #6b7280; /* gray-500 */
+    color: #ffffff;
+    border: 1px solid #6b7280;
+}
+.btn-secondary:hover {
+    background-color: #4b5563; /* gray-700 */
+    border-color: #4b5563;
+}
+
+/* Campos de Entrada y Select */
+.input-field {
+    padding: 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 0.5rem; /* rounded-lg */
+    width: 100%;
+    box-sizing: border-box;
+    color: var(--dark-text);
+    background-color: #ffffff;
+}
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent-red);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2); /* red-600 with opacity */
+}
+
+/* Estilos de Tabla */
+.table-header th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 600; /* font-semibold */
+    color: var(--medium-text);
+    background-color: var(--light-border);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table-row td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--light-border);
+    font-size: 0.9375rem; /* text-base */
+    color: var(--medium-text);
+}
+.table-row:last-child td {
+    border-bottom: none;
+}
+.table-row:hover {
+    background-color: var(--hover-bg-light); /* red-100 on hover */
+}
+
+/* Enlaces de Acción en la Tabla */
+.table-row a {
+    color: var(--primary-red);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+.table-row a:hover {
+    color: var(--accent-red);
+}
+
+/* Estado de Alumno (Activo/Inactivo) */
+.text-green-800 { color: #166534; } /* green-800 */
+.bg-green-100 { background-color: #dcfce7; } /* green-100 */
+.text-red-800 { color: #991b1b; } /* red-800 */
+.bg-red-100 { background-color: #fee2e2; } /* red-100 */
+
+/* Paginación */
+.pagination-link {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--input-border);
+    color: var(--primary-red);
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+.pagination-link:hover {
+    background-color: var(--hover-bg-light); /* red-100 */
+    border-color: var(--accent-red);
+}
+.pagination-link.active {
+    background-color: var(--primary-red);
+    color: #ffffff;
+    border-color: var(--primary-red);
+}
+.pagination-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    background-color: var(--light-border);
+    color: var(--medium-text);
+    border-color: var(--input-border);
+}
