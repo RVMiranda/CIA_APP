@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from .models import Alumno, NivelIngles, GrupoAlumno, Inscripcion, Reinscripcion
+from .forms import AlumnoForm, AlumnoInscripcionForm, ReinscripcionForm, GrupoAlumnoForm
+from .utils import generar_matricula
 
 # Create your views here.
 def alumnos_view(request):
@@ -69,3 +71,86 @@ def alumnos_view(request):
     }
 
     return render(request, 'alumnos/alumnos.html', context)
+
+def agregar_alumno(request):
+    if request.method == 'POST':
+        form = AlumnoInscripcionForm(request.POST)
+        if form.is_valid():
+            # 1) Guardar Alumno (sin matricula)
+            alumno = form.save(commit=False)
+            alumno.matricula = generar_matricula(alumno.nombre, alumno.apellido)
+            alumno.save()
+
+            # 2) Guardar Inscripcion ligada
+            nivel = form.cleaned_data['nivel']
+            monto = form.cleaned_data['monto']
+            Inscripcion.objects.create(
+                alumno=alumno,
+                nivel=nivel,
+                monto=monto
+            )
+
+            return redirect('alumnos:lista_alumnos')
+    else:
+        form = AlumnoInscripcionForm(initial={'activo': True})
+
+    return render(request, 'alumnos/agregarAlumno.html', {
+        'form': form,
+    })
+
+def alumno_detail_view(request, pk):
+    alumno = get_object_or_404(Alumno, pk=pk)
+
+    # Manejo de formularios POST
+    if request.method == 'POST':
+        if 'submit_alumno_form' in request.POST: # Botón para guardar datos del alumno
+            alumno_form = AlumnoForm(request.POST, instance=alumno)
+            if alumno_form.is_valid():
+                alumno_form.save()
+                # Mensaje de éxito o redirección, por ahora solo recargamos
+                return redirect('alumnos:detalleAlumno', pk=alumno.pk)
+        elif 'submit_reinscripcion_form' in request.POST: # Botón para reinscribir
+            reinscripcion_form = ReinscripcionForm(request.POST)
+            if reinscripcion_form.is_valid():
+                reinscripcion = reinscripcion_form.save(commit=False)
+                reinscripcion.alumno = alumno
+                reinscripcion.save()
+                # Mensaje de éxito o redirección
+                return redirect('alumnos:detalleAlumno', pk=alumno.pk)
+        elif 'submit_grupo_form' in request.POST: # Botón para asignar grupo
+            grupo_alumno_form = GrupoAlumnoForm(request.POST)
+            if grupo_alumno_form.is_valid():
+                # Antes de guardar, verifica si ya existe una asignación para este alumno y nivel
+                # Esto es crucial debido a unique_together = ('alumno', 'nivel')
+                nivel_seleccionado = grupo_alumno_form.cleaned_data['nivel']
+                grupo_existente = GrupoAlumno.objects.filter(alumno=alumno, nivel=nivel_seleccionado).first()
+
+                if grupo_existente:
+                    # Si ya existe, actualiza el nombre del grupo existente
+                    grupo_existente.nombre = grupo_alumno_form.cleaned_data['nombre']
+                    grupo_existente.save()
+                else:
+                    # Si no existe, crea una nueva asignación
+                    grupo_alumno = grupo_alumno_form.save(commit=False)
+                    grupo_alumno.alumno = alumno
+                    grupo_alumno.save()
+                # Mensaje de éxito o redirección
+                return redirect('alumnos:detalleAlumno', pk=alumno.pk)
+    else: # Petición GET
+        alumno_form = AlumnoForm(instance=alumno) # Precarga los datos del alumno
+        reinscripcion_form = ReinscripcionForm() # Formulario vacío para nueva reinscripción
+        grupo_alumno_form = GrupoAlumnoForm() # Formulario vacío para nueva asignación de grupo
+
+    # Obtener todas las reinscripciones y grupos del alumno para mostrarlas
+    reinscripciones = Reinscripcion.objects.filter(alumno=alumno).order_by('-fecha_reinscripcion')
+    grupos_alumno = GrupoAlumno.objects.filter(alumno=alumno).order_by('nivel__nombre')
+
+    context = {
+        'alumno': alumno,
+        'alumno_form': alumno_form,
+        'reinscripcion_form': reinscripcion_form,
+        'grupo_alumno_form': grupo_alumno_form,
+        'reinscripciones': reinscripciones,
+        'grupos_alumno': grupos_alumno,
+    }
+    return render(request, 'alumnos/detalleAlumno.html', context)

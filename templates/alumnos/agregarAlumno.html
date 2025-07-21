@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Agregar Alumno{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/alumnos/alumnos.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="container mx-auto px-4">
+    <h1 class="text-3xl font-bold text-red-700 mb-6">
+      Crear Alumno e Inscripción
+    </h1>
+    <div class="card max-w-lg mx-auto">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-4">
+            <label for="{{ field.id_for_label }}"
+                   class="block text-sm font-medium text-gray-700 mb-1">
+              {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+              <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="text-xs text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        <div class="flex justify-end">
+          <a href="{% url 'alumnos:lista_alumnos' %}" class="btn btn-secondary mr-2">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'alumnos',
     'colegiaturas',
+    'grupos',
 ]
 
 REST_FRAMEWORK = {
