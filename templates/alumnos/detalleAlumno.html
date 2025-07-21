@@ -99,7 +99,7 @@
 
             <!-- Recuadro para Asignar Grupo -->
             <div class="card">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Asignar a Grupo</h2>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Asignar a Grupo Existente</h2>
                 <form method="post" class="space-y-4">
                     {% csrf_token %}
                     {% for field in grupo_alumno_form %}
@@ -131,11 +131,11 @@
                     </div>
                 </form>
 
-                <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Grupos Asignados</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Grupos Asignados Actualmente</h3>
                 {% if grupos_alumno %}
                     <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
-                        {% for grupo in grupos_alumno %}
-                            <li>{{ grupo.nombre }} (Nivel: {{ grupo.nivel.nombre }} - {{ grupo.nivel.sub_nivel }})</li>
+                        {% for asignacion in grupos_alumno %}
+                            <li>{{ asignacion.grupo.nombre }} (Nivel: {{ asignacion.grupo.nivel.nombre }} - {{ asignacion.grupo.nivel.sub_nivel }}) - Asignado el {{ asignacion.fecha_asignacion|date:"d M Y" }}</li>
                         {% endfor %}
                     </ul>
                 {% else %}

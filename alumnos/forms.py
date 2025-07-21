@@ -1,5 +1,5 @@
 from django import forms
-from .models import Alumno, NivelIngles, Inscripcion, Reinscripcion, GrupoAlumno
+from .models import Alumno, NivelIngles, Inscripcion, Reinscripcion
 
 class AlumnoForm(forms.ModelForm):
     class Meta:
@@ -83,15 +83,3 @@ class ReinscripcionForm(forms.ModelForm):
             'monto': 'Monto de la Reinscripción',
         }
 
-class GrupoAlumnoForm(forms.ModelForm):
-    class Meta:
-        model = GrupoAlumno
-        fields = ['nombre', 'nivel']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class':'input-field','placeholder':'Nombre de Grupo'}),
-            'nivel':  forms.Select(attrs={'class':'input-field'}),
-        }
-        labels = {
-            'nombre': 'Nombre del Grupo',
-            'nivel': 'Nivel al que pertenece el Grupo',
-        }

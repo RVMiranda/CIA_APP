@@ -70,16 +70,16 @@ class Reinscripcion(models.Model):
     def __str__(self):
         return f"Reinscripción de {self.alumno.nombre} a {self.nivel} en {self.fecha_reinscripcion}"
 
-class GrupoAlumno(models.Model):
-    nombre = models.CharField(max_length=100, null=False, verbose_name="Nombre del Grupo")
-    alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, verbose_name="Alumno")
-    nivel = models.ForeignKey(NivelIngles, on_delete=models.CASCADE, verbose_name="Nivel del Grupo")
+# class GrupoAlumno(models.Model):
+#     nombre = models.CharField(max_length=100, null=False, verbose_name="Nombre del Grupo")
+#     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, verbose_name="Alumno")
+#     nivel = models.ForeignKey(NivelIngles, on_delete=models.CASCADE, verbose_name="Nivel del Grupo")
 
-    class Meta:
-        verbose_name = "Grupo de Alumno"
-        verbose_name_plural = "Grupos de Alumnos"
-        unique_together = ('alumno', 'nivel')
+#     class Meta:
+#         verbose_name = "Grupo de Alumno"
+#         verbose_name_plural = "Grupos de Alumnos"
+#         unique_together = ('alumno', 'nivel')
 
-    def __str__(self):
-        return f"Grupo '{self.nombre}' - {self.alumno.nombre} ({self.nivel.nombre})"
+#     def __str__(self):
+#         return f"Grupo '{self.nombre}' - {self.alumno.nombre} ({self.nivel.nombre})"
 

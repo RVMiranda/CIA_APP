@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-from .models import Alumno, NivelIngles, GrupoAlumno, Inscripcion, Reinscripcion
-from .forms import AlumnoForm, AlumnoInscripcionForm, ReinscripcionForm, GrupoAlumnoForm
+from .models import Alumno, NivelIngles, Inscripcion, Reinscripcion
+from grupos.models import Grupo, GrupoAlumno
+from .forms import AlumnoForm, AlumnoInscripcionForm, ReinscripcionForm
+from grupos.forms import GrupoAlumnoForm
 from .utils import generar_matricula
 
 # Create your views here.
@@ -38,7 +40,7 @@ def alumnos_view(request):
     # 3. Aplicar el filtro por nivel de inglés
     # Este filtro se aplica a los alumnos que pertenecen a un GrupoAlumno con el nivel seleccionado
     if nivel_filter:
-        alumnos_filtrados = alumnos_filtrados.filter(grupoalumno__nivel__nombre=nivel_filter).distinct()
+        alumnos_filtrados = alumnos_filtrados.filter(grupoalumno__grupo__nivel__nombre=nivel_filter).distinct()
 
     # 4. Realizar la paginación
     paginator = Paginator(alumnos_filtrados, 10) # 10 alumnos por página, puedes ajustar este número
@@ -101,15 +103,13 @@ def agregar_alumno(request):
 def alumno_detail_view(request, pk):
     alumno = get_object_or_404(Alumno, pk=pk)
 
-    # Manejo de formularios POST
     if request.method == 'POST':
-        if 'submit_alumno_form' in request.POST: # Botón para guardar datos del alumno
+        if 'submit_alumno_form' in request.POST:
             alumno_form = AlumnoForm(request.POST, instance=alumno)
             if alumno_form.is_valid():
                 alumno_form.save()
-                # Mensaje de éxito o redirección, por ahora solo recargamos
                 return redirect('alumnos:detalleAlumno', pk=alumno.pk)
-        elif 'submit_reinscripcion_form' in request.POST: # Botón para reinscribir
+        elif 'submit_reinscripcion_form' in request.POST:
             reinscripcion_form = ReinscripcionForm(request.POST)
             if reinscripcion_form.is_valid():
                 reinscripcion = reinscripcion_form.save(commit=False)
@@ -117,33 +117,22 @@ def alumno_detail_view(request, pk):
                 reinscripcion.save()
                 # Mensaje de éxito o redirección
                 return redirect('alumnos:detalleAlumno', pk=alumno.pk)
-        elif 'submit_grupo_form' in request.POST: # Botón para asignar grupo
-            grupo_alumno_form = GrupoAlumnoForm(request.POST)
+        elif 'submit_grupo_form' in request.POST:
+            grupo_alumno_form = GrupoAlumnoForm(request.POST, alumno=alumno)
             if grupo_alumno_form.is_valid():
-                # Antes de guardar, verifica si ya existe una asignación para este alumno y nivel
-                # Esto es crucial debido a unique_together = ('alumno', 'nivel')
-                nivel_seleccionado = grupo_alumno_form.cleaned_data['nivel']
-                grupo_existente = GrupoAlumno.objects.filter(alumno=alumno, nivel=nivel_seleccionado).first()
-
-                if grupo_existente:
-                    # Si ya existe, actualiza el nombre del grupo existente
-                    grupo_existente.nombre = grupo_alumno_form.cleaned_data['nombre']
-                    grupo_existente.save()
-                else:
-                    # Si no existe, crea una nueva asignación
-                    grupo_alumno = grupo_alumno_form.save(commit=False)
-                    grupo_alumno.alumno = alumno
-                    grupo_alumno.save()
+                grupo_alumno = grupo_alumno_form.save(commit=False)
+                grupo_alumno.alumno = alumno
+                grupo_alumno.save()
                 # Mensaje de éxito o redirección
                 return redirect('alumnos:detalleAlumno', pk=alumno.pk)
     else: # Petición GET
         alumno_form = AlumnoForm(instance=alumno) # Precarga los datos del alumno
         reinscripcion_form = ReinscripcionForm() # Formulario vacío para nueva reinscripción
-        grupo_alumno_form = GrupoAlumnoForm() # Formulario vacío para nueva asignación de grupo
+        grupo_alumno_form = GrupoAlumnoForm(alumno=alumno) # Formulario vacío para nueva asignación de grupo
 
     # Obtener todas las reinscripciones y grupos del alumno para mostrarlas
     reinscripciones = Reinscripcion.objects.filter(alumno=alumno).order_by('-fecha_reinscripcion')
-    grupos_alumno = GrupoAlumno.objects.filter(alumno=alumno).order_by('nivel__nombre')
+    grupos_alumno = GrupoAlumno.objects.filter(alumno=alumno).order_by('grupo__nivel__nombre', 'grupo__nombre')
 
     context = {
         'alumno': alumno,

@@ -70,8 +70,9 @@
                 <td>{{ alumno.nombre }} {{ alumno.apellido }}</td>
                 <td>{{ alumno.telefono|default:"N/A" }}</td>
                 <td>
-                  {% with ultimo_grupo=alumno.grupoalumno_set.last %}
-                    {% if ultimo_grupo %}{{ ultimo_grupo.nivel.nombre }} - {{ ultimo_grupo.nivel.sub_nivel }}{% else %}Sin Nivel{% endif %}
+                  {# Muestra el nivel del último grupo asignado al alumno #}
+                  {% with ultima_asignacion=alumno.grupoalumno_set.last %}
+                    {% if ultima_asignacion %}{{ ultima_asignacion.grupo.nivel.nombre }} - {{ ultima_asignacion.grupo.nivel.sub_nivel }}{% else %}Sin Nivel{% endif %}
                   {% endwith %}
                 </td>
                 <td>
