@@ -1,0 +1,95 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Listado de Grupos{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/alumnos/alumnos.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-4xl font-bold text-center text-red-700 mb-8">Gestión de Grupos</h1>
+
+    <!-- Card de filtros -->
+    <div class="card mb-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Filtrar Grupos</h2>
+        <form method="GET" action="{% url 'grupos:lista_grupos' %}" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="nivel" class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Nivel:</label>
+                <select name="nivel" id="nivel" class="input-field">
+                    <option value="">Todos los Niveles</option>
+                    {% for nivel in niveles_ingles %}
+                        <option value="{{ nivel.nombre }}" {% if nivel_seleccionado == nivel.nombre %}selected{% endif %}>
+                            {{ nivel.nombre }} - {{ nivel.sub_nivel }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex items-end justify-end">
+                <button type="submit" class="btn btn-primary">Aplicar Filtro</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Card de tabla -->
+    <div class="card">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold text-gray-800">Lista de Grupos</h2>
+            <a href="{% url 'grupos:agregarGrupo' %}" class="btn btn-primary">Agregar Nuevo Grupo</a>
+        </div>
+
+        {% if grupos %}
+            <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr class="table-header">
+                            <th>Nombre del Grupo</th>
+                            <th>Nivel Asociado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for grupo in grupos %}
+                            <tr class="table-row">
+                                <td>{{ grupo.nombre }}</td>
+                                <td>{{ grupo.nivel.nombre }} - {{ grupo.nivel.sub_nivel }}</td>
+                                <td>
+                                    <a href="" class="text-red-600 hover:text-red-800 font-medium mr-4">Ver detalles</a>
+                                    
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            {% if is_paginated %}
+                <nav class="mt-8 flex justify-center" aria-label="Pagination">
+                    <ul class="flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <li><a href="?page={{ page_obj.previous_page_number }}{% if nivel_seleccionado %}&nivel={{ nivel_seleccionado }}{% endif %}" class="pagination-link">Anterior</a></li>
+                        {% else %}
+                            <li><span class="pagination-link disabled">Anterior</span></li>
+                        {% endif %}
+
+                        {% for i in paginator.page_range %}
+                            <li>
+                                <a href="?page={{ i }}{% if nivel_seleccionado %}&nivel={{ nivel_seleccionado }}{% endif %}" class="pagination-link {% if page_obj.number == i %}active{% endif %}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li><a href="?page={{ page_obj.next_page_number }}{% if nivel_seleccionado %}&nivel={{ nivel_seleccionado }}{% endif %}" class="pagination-link">Siguiente</a></li>
+                        {% else %}
+                            <li><span class="pagination-link disabled">Siguiente</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+        {% else %}
+            <p class="text-center text-gray-600 py-8">No hay grupos registrados que coincidan con los criterios de búsqueda. <a href="{% url 'grupos:agregarGrupo' %}" class="text-red-600 hover:underline">¡Crea uno ahora!</a></p>
+        {% endif %}
+    </div>
+{% endblock %}

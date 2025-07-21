@@ -76,7 +76,7 @@ class ReinscripcionForm(forms.ModelForm):
         fields = ['nivel', 'monto']
         widgets = {
             'nivel': forms.Select(attrs={'class':'input-field'}),
-            'monto': forms.NumberInput(attrs={'class':'input-field','placeholder':'Ej. 150.00'}),
+            'monto': forms.NumberInput(attrs={'class':'input-field','placeholder':'650.00'}),
         }
         labels = {
             'nivel': 'Nivel al que se reinscribe',

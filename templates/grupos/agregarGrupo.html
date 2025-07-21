@@ -1,0 +1,49 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/alumnos/alumnos.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-4xl font-bold text-center text-red-700 mb-8">{{ titulo }}</h1>
+
+    <div class="card max-w-xl mx-auto">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">¡Error!</strong>
+                    <span class="block sm:inline">Por favor, corrige los siguientes errores:</span>
+                    <ul class="mt-2 list-disc list-inside">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="flex justify-end space-x-4 mt-8">
+                <a href="{% url 'grupos:lista_grupos' %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">{{ boton_submit }}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

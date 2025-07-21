@@ -7,11 +7,11 @@ class GrupoForm(forms.ModelForm):
         model = Grupo
         fields = '__all__'
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'input-field'}),
+            'nombre': forms.TextInput(attrs={'class': 'input-field', 'placeholder':'Grupo de Miss Ange'}),
             'nivel': forms.Select(attrs={'class': 'input-field'}),
         }
         labels = {
-            'nombre': 'Nombre del Grupo (ej. "Grupo A", "Grupo de Conversación")',
+            'nombre': 'Nombre del Grupo',
             'nivel': 'Nivel de Inglés Asociado',
         }
 
