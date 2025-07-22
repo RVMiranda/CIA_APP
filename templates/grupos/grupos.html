@@ -54,7 +54,7 @@
                                 <td>{{ grupo.nombre }}</td>
                                 <td>{{ grupo.nivel.nombre }} - {{ grupo.nivel.sub_nivel }}</td>
                                 <td>
-                                    <a href="" class="text-red-600 hover:text-red-800 font-medium mr-4">Ver detalles</a>
+                                    <a href="{% url 'grupos:detalleGrupo' pk=grupo.pk %}" class="text-red-600 hover:text-red-800 font-medium mr-4">Ver detalles</a>
                                     
                                 </td>
                             </tr>

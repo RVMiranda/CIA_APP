@@ -1,0 +1,141 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/alumnos/alumnos.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="text-4xl font-bold text-center text-red-700 mb-8">{{ titulo }}</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Columna 1: Datos del Grupo (Editar) -->
+        <div class="card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Editar Información del Grupo</h2>
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                {% for field in grupo_form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                {% if grupo_form.non_field_errors %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">¡Error en Datos del Grupo!</strong>
+                        <ul class="mt-2 list-disc list-inside">
+                            {% for error in grupo_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="flex justify-end space-x-4 mt-8">
+                    <a href="{% url 'grupos:lista_grupos' %}" class="btn btn-secondary">Volver a la Lista</a>
+                    <button type="submit" name="submit_grupo_form" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Columna 2: Alumnos en el Grupo y Asignar Alumno -->
+        <div class="space-y-8">
+            <!-- Recuadro para Asignar Alumno a este Grupo -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Asignar Alumno a este Grupo</h2>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    {% for field in grupo_alumno_form %}
+                        <div class="form-field">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    {% if grupo_alumno_form.non_field_errors %}
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                            <strong class="font-bold">¡Error en Asignación de Alumno!</strong>
+                            <ul class="mt-2 list-disc list-inside">
+                                {% for error in grupo_alumno_form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="flex justify-end">
+                        <button type="submit" name="submit_assign_alumno_form" class="btn btn-primary">Asignar Alumno</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Recuadro: Alumnos en el Grupo (ya existente) -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Alumnos en este Grupo ({{ grupo.nombre }})</h2>
+
+                {% if alumnos_en_grupo %}
+                    <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr class="table-header">
+                                    <th>Matrícula</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Estado</th> {# Nueva columna para el estado #}
+                                    <th>Fecha de Asignación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for asignacion in alumnos_en_grupo %}
+                                    <tr class="table-row">
+                                        <td>{{ asignacion.alumno.matricula }}</td>
+                                        <td>{{ asignacion.alumno.nombre }} {{ asignacion.alumno.apellido }}</td>
+                                        <td>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                {% if asignacion.alumno.activo %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                {% if asignacion.alumno.activo %}Activo{% else %}Inactivo{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>{{ asignacion.fecha_asignacion|date:"d M Y" }}</td>
+                                        <td class="flex items-center space-x-2">
+                                            <a href="{% url 'alumnos:detalleAlumno' pk=asignacion.alumno.pk %}" class="text-red-600 hover:text-red-800 font-medium">Ver Alumno</a>
+                                            {# Formulario para eliminar al alumno del grupo #}
+                                            <form method="post" action="{% url 'grupos:detalleGrupo' pk=grupo.pk %}" class="inline-block">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="asignacion_id" value="{{ asignacion.pk }}">
+                                                <button type="submit" name="submit_remove_alumno_from_group"
+                                                        class="text-gray-600 hover:text-gray-800 font-medium text-sm p-1 rounded-md hover:bg-gray-100"
+                                                        onclick="return confirm('¿Estás seguro de que quieres eliminar a {{ asignacion.alumno.nombre }} de este grupo?');">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center text-gray-600 py-8">No hay alumnos activos asignados a este grupo aún.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
