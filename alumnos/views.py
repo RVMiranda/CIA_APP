@@ -1,8 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
+from django.utils import timezone
+from datetime import date
+import calendar
 from .models import Alumno, NivelIngles, Inscripcion, Reinscripcion
 from grupos.models import Grupo, GrupoAlumno
+from colegiaturas.models import Colegiatura, Descuento, Recargo 
 from .forms import AlumnoForm, AlumnoInscripcionForm, ReinscripcionForm
 from grupos.forms import GrupoAlumnoForm
 from .utils import generar_matricula
@@ -92,6 +96,28 @@ def agregar_alumno(request):
                 monto=monto
             )
 
+            # --- Generar la primera colegiatura mensual ---
+            today = timezone.now().date()
+            current_month = today.month
+            current_year = today.year
+
+            # Día de vencimiento: el día 5 (o el último si el mes es más corto)
+            last_day = _get_last_day_of_month(current_year, current_month)
+            due_day = min(5, last_day)
+            fecha_venc = date(current_year, current_month, due_day)
+
+            # Crear Colegiatura
+            Colegiatura.objects.create(
+                alumno=alumno,
+                anio=current_year,
+                mes=current_month,
+                fecha_vencimiento=fecha_venc,
+                monto_base=650.00,         # usa tu valor por defecto
+                estado_pago=Colegiatura.PENDIENTE,
+                # los demás campos (fecha_pago, monto_pagado, recargo, descuento)
+                # quedan en null o default según tu modelo
+            )
+
             return redirect('alumnos:lista_alumnos')
     else:
         form = AlumnoInscripcionForm(initial={'activo': True})
@@ -143,3 +169,6 @@ def alumno_detail_view(request, pk):
         'grupos_alumno': grupos_alumno,
     }
     return render(request, 'alumnos/detalleAlumno.html', context)
+
+def _get_last_day_of_month(year, month):
+    return calendar.monthrange(year, month)[1]

@@ -71,15 +71,7 @@
                 <!-- Dropdown: x-show controla visibilidad -->
                 <div x-show="open" @click.away="open = false" x-transition
                     class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <a href="{% url 'alumnos:lista_alumnos' %}?estado=activo"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Alumnos Activos
-                    </a>
-                    <a href="{% url 'alumnos:lista_alumnos' %}?estado=baja"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Alumnos de Baja
-                    </a>
-                    <a href=""
+                    <a href="{% url 'colegiaturas:lista_colegiaturas' %}"
                         class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
                         Colegiaturas
                     </a>
