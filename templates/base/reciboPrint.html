@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recibo</title>
+  <link rel="stylesheet" href="{% static 'css/print.css' %}">
+</head>
+<body onload="window.print()">
+
+  <button id="btnPrint" onclick="window.print()" class="no-print">
+    Imprimir
+  </button>
+
+  <div class="print-body">
+    {% for copy in "12" %}
+      <div class="recibo-container">
+        <div class="recibo-header">
+          <h2>AMÉRICA – Centro de Inglés</h2>
+          <p class="recibo-numero">Recibo No. {{ object.pk|stringformat:"04d" }}</p>
+        </div>
+        <div class="recibo-content">
+          <p><strong>Alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }}</p>
+          {% if type == 'inscripcion' %}
+            <p><strong>Concepto:</strong> Inscripción ({{ object.nivel }})</p>
+            <p><strong>Fecha:</strong> {{ object.fecha_inscripcion|date:"Y-m-d" }}</p>
+            <p><strong>Monto:</strong> $ {{ object.monto }}</p>
+          {% elif type == 'reinscripcion' %}
+            <p><strong>Concepto:</strong> Reinscripción ({{ object.nivel }})</p>
+            <p><strong>Fecha:</strong> {{ object.fecha_reinscripcion|date:"Y-m-d" }}</p>
+            <p><strong>Monto:</strong> $ {{ object.monto }}</p>
+          {% else %}
+            <p><strong>Concepto:</strong> Colegiatura {{ object.get_mes_display }} {{ object.anio }}</p>
+            <p><strong>Vencimiento:</strong> {{ object.fecha_vencimiento|date:"Y-m-d" }}</p>
+            <p><strong>Estado:</strong> {{ object.get_estado_pago_display }}</p>
+            <p><strong>Monto Base:</strong> $ {{ object.monto_base }}</p>
+            {% if object.fecha_pago %}
+              <p><strong>Fecha Pago:</strong> {{ object.fecha_pago|date:"Y-m-d" }}</p>
+              <p><strong>Monto Pagado:</strong> $ {{ object.monto_pagado }}</p>
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="recibo-footer">
+          <p>Av. Sur Oriente No.57 Barrio Candelaria, Ocosingo, Chiapas C.P. 29950</p>
+          <p>Secretaría de Educación Pública • www.america-ingles.mx</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</body>
+</html>

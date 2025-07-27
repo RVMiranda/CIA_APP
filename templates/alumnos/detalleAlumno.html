@@ -47,6 +47,18 @@
                     <button type="submit" name="submit_alumno_form" class="btn btn-primary">Guardar Cambios</button>
                 </div>
             </form>
+            <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Historial de Inscripciones</h3>
+            {% if inscripciones %}
+                <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                    {% for inscripcion in inscripciones %}
+                        <li>Inscripción a {{ inscripcion.nivel.nombre }} - {{ inscripcion.nivel.sub_nivel }} ({{ inscripcion.fecha_inscripcion|date:"d M Y" }}) - ${{ inscripcion.monto }}
+                            <a href="{% url 'alumnos:print_inscripcion' pk=inscripcion.pk %}" target="_blank" class="text-blue-600 hover:text-blue-800 ml-2">Imprimir Recibo</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-sm text-gray-500">No hay inscripciones registradas para este alumno.</p>
+            {% endif %}
         </div>
 
         <!-- Columna 2: Reinscripción y Grupo -->
@@ -90,7 +102,8 @@
                     <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
                         {% for reinscripcion in reinscripciones %}
                             <li>{{ reinscripcion.nivel.nombre }} - {{ reinscripcion.nivel.sub_nivel }} ({{ reinscripcion.fecha_reinscripcion|date:"d M Y" }}) - ${{ reinscripcion.monto }}</li>
-                        {% endfor %}
+                            <a href="{% url 'alumnos:print_reinscripcion' pk=reinscripcion.pk %}" target="_blank" class="text-blue-600 hover:text-blue-800 ml-2">Imprimir Recibo</a>
+                            {% endfor %}
                     </ul>
                 {% else %}
                     <p class="text-sm text-gray-500">No hay reinscripciones registradas para este alumno.</p>

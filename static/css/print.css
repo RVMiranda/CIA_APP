@@ -1,0 +1,67 @@
+/* Botón no impreso */
+.no-print {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: #b91c1c;
+  color: white;
+  border: none;
+  padding: .5rem 1rem;
+  border-radius: .25rem;
+  cursor: pointer;
+}
+@media print { .no-print { display: none !important; } }
+
+/* Quitar márgenes del navegador en impresión */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+@media print {
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .print-body {
+    display: grid;
+    grid-template-rows: 50% 50%;
+    row-gap: 0;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 1cm 0; /* margen vertical */
+  }
+  .recibo-container {
+    border: 1px solid #b91c1c;
+    margin: 0 1cm;        /* margen horizontal */
+    padding: .5cm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;         /* ocupa toda la celda */
+  }
+  .recibo-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: .5cm;
+  }
+  .recibo-header h2 {
+    color: #b91c1c;
+    font-size: 1.1em;
+    margin: 0;
+  }
+  .recibo-numero {
+    font-size: .9em;
+    margin: 0;
+  }
+  .recibo-content p {
+    margin: .3cm 0;
+    font-size: .9em;
+  }
+  .recibo-footer {
+    text-align: center;
+    font-size: .75em;
+  }
+}

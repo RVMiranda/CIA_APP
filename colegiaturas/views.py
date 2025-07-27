@@ -177,3 +177,11 @@ class ColegiaturaDetailView(DetailView):
                 return render(request, self.template_name, context)
         
         return redirect('colegiaturas:historial_colegiaturas_alumno', pk=alumno.pk)
+
+def print_colegiatura_view(request, pk):
+    colegiatura = get_object_or_404(Colegiatura, pk=pk)
+    context = {
+        'object': colegiatura,
+        'type': 'colegiatura'
+    }
+    return render(request, 'base/reciboPrint.html', context)

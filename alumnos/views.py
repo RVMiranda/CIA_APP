@@ -172,3 +172,19 @@ def alumno_detail_view(request, pk):
 
 def _get_last_day_of_month(year, month):
     return calendar.monthrange(year, month)[1]
+
+def print_inscripcion_view(request, pk):
+    inscripcion = get_object_or_404(Inscripcion, pk=pk)
+    context = {
+        'object': inscripcion,
+        'type': 'inscripcion'
+    }
+    return render(request, 'base/reciboPrint.html', context)
+
+def print_reinscripcion_view(request, pk):
+    reinscripcion = get_object_or_404(Reinscripcion, pk=pk)
+    context = {
+        'object': reinscripcion,
+        'type': 'reinscripcion'
+    }
+    return render(request, 'base/reciboPrint.html', context)
