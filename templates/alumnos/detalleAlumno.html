@@ -110,51 +110,7 @@
                 {% endif %}
             </div>
 
-            <!-- Recuadro para Asignar Grupo -->
-            <div class="card">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Asignar a Grupo Existente</h2>
-                <form method="post" class="space-y-4">
-                    {% csrf_token %}
-                    {% for field in grupo_alumno_form %}
-                        <div class="form-field">
-                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ field.label }}
-                            </label>
-                            {{ field }}
-                            {% if field.help_text %}
-                                <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                    {% if grupo_alumno_form.non_field_errors %}
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <strong class="font-bold">¡Error en Asignación de Grupo!</strong>
-                            <ul class="mt-2 list-disc list-inside">
-                                {% for error in grupo_alumno_form.non_field_errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    <div class="flex justify-end">
-                        <button type="submit" name="submit_grupo_form" class="btn btn-primary">Asignar Grupo</button>
-                    </div>
-                </form>
-
-                <h3 class="text-lg font-semibold text-gray-700 mt-6 mb-2">Grupos Asignados Actualmente</h3>
-                {% if grupos_alumno %}
-                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
-                        {% for asignacion in grupos_alumno %}
-                            <li>{{ asignacion.grupo.nombre }} (Nivel: {{ asignacion.grupo.nivel.nombre }} - {{ asignacion.grupo.nivel.sub_nivel }}) - Asignado el {{ asignacion.fecha_asignacion|date:"d M Y" }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-sm text-gray-500">Este alumno no está asignado a ningún grupo.</p>
-                {% endif %}
-            </div>
+            
         </div>
     </div>
 {% endblock %}

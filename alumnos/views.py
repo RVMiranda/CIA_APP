@@ -118,7 +118,7 @@ def agregar_alumno(request):
                 # quedan en null o default según tu modelo
             )
 
-            return redirect('alumnos:lista_alumnos')
+            return redirect('alumnos:detalleAlumno', pk=alumno.pk)
     else:
         form = AlumnoInscripcionForm(initial={'activo': True})
 
@@ -143,30 +143,21 @@ def alumno_detail_view(request, pk):
                 reinscripcion.save()
                 # Mensaje de éxito o redirección
                 return redirect('alumnos:detalleAlumno', pk=alumno.pk)
-        elif 'submit_grupo_form' in request.POST:
-            grupo_alumno_form = GrupoAlumnoForm(request.POST, alumno=alumno)
-            if grupo_alumno_form.is_valid():
-                grupo_alumno = grupo_alumno_form.save(commit=False)
-                grupo_alumno.alumno = alumno
-                grupo_alumno.save()
-                # Mensaje de éxito o redirección
-                return redirect('alumnos:detalleAlumno', pk=alumno.pk)
     else: # Petición GET
         alumno_form = AlumnoForm(instance=alumno) # Precarga los datos del alumno
         reinscripcion_form = ReinscripcionForm() # Formulario vacío para nueva reinscripción
-        grupo_alumno_form = GrupoAlumnoForm(alumno=alumno) # Formulario vacío para nueva asignación de grupo
 
-    # Obtener todas las reinscripciones y grupos del alumno para mostrarlas
+    # Obtener todas las reinscripciones del alumno para mostrarlas
+    inscripciones = list(Inscripcion.objects.filter(alumno=alumno).order_by('fecha_inscripcion'))
     reinscripciones = Reinscripcion.objects.filter(alumno=alumno).order_by('-fecha_reinscripcion')
-    grupos_alumno = GrupoAlumno.objects.filter(alumno=alumno).order_by('grupo__nivel__nombre', 'grupo__nombre')
+    
 
     context = {
         'alumno': alumno,
         'alumno_form': alumno_form,
         'reinscripcion_form': reinscripcion_form,
-        'grupo_alumno_form': grupo_alumno_form,
         'reinscripciones': reinscripciones,
-        'grupos_alumno': grupos_alumno,
+        'inscripciones':  inscripciones,
     }
     return render(request, 'alumnos/detalleAlumno.html', context)
 
