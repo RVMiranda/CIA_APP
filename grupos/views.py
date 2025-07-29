@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 from .models import Grupo, GrupoAlumno
 from .forms import GrupoForm, GrupoAlumnoForm
 from alumnos.models import NivelIngles, Alumno
+from django.db.models import Q
+
 # Create your views here.
 
 class GrupoListView(ListView):
@@ -57,52 +59,65 @@ class GrupoDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Formulario para editar el grupo
-        context['grupo_form'] = GrupoForm(instance=self.object)
-        # Formulario para asignar alumnos a este grupo
-        context['grupo_alumno_form'] = GrupoAlumnoForm(grupo=self.object)
+        grupo = self.object
 
-        # Obtener los alumnos asignados a este grupo, filtrando solo los activos
+        # Formulario para editar el grupo
+        context['grupo_form'] = GrupoForm(instance=grupo)
+
+        # Filtro de búsqueda
+        q = self.request.GET.get('q', '').strip()
+
+        # Alumnos disponibles (activos y no asignados a este grupo)
+        disponibles = Alumno.objects.filter(activo=True) \
+            .exclude(grupoalumno__grupo=grupo) \
+            .order_by('apellido', 'nombre')
+
+        if q:
+            disponibles = disponibles.filter(
+                Q(nombre__icontains=q) |
+                Q(apellido__icontains=q) |
+                Q(matricula__icontains=q)
+            )
+
+        context['available_alumnos'] = disponibles
+        context['search_query'] = q
+
+        # Formulario para asignar (solo contiene el campo "grupo")
+        # pero vamos a tomar el alumno desde POST manualmente
+        context['grupo_alumno_form'] = GrupoAlumnoForm(grupo=grupo)
+
+        # Alumnos ya en el grupo
         context['alumnos_en_grupo'] = GrupoAlumno.objects.filter(
-            grupo=self.object,
-            alumno__activo=True # ¡Filtrar solo alumnos activos!
-        ).order_by('alumno__apellido', 'alumno__nombre')
-        context['titulo'] = f'Detalles del Grupo: {self.object.nombre}'
+            grupo=grupo,
+            alumno__activo=True
+        ).select_related('alumno').order_by('alumno__apellido', 'alumno__nombre')
+
+        context['titulo'] = f'Detalles del Grupo: {grupo.nombre}'
         return context
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object() # Obtener la instancia del grupo
+        self.object = self.get_object()
+        grupo = self.object
 
-        if 'submit_grupo_form' in request.POST: # Si se envió el formulario de edición del grupo
-            form = GrupoForm(request.POST, instance=self.object)
+        # Edición de datos de grupo
+        if 'submit_grupo_form' in request.POST:
+            form = GrupoForm(request.POST, instance=grupo)
             if form.is_valid():
                 form.save()
-                return redirect('grupos:detalleGrupo', pk=self.object.pk)
-            else:
-                context = self.get_context_data(object=self.object)
-                context['grupo_form'] = form
-                return self.render_to_response(context)
-        elif 'submit_assign_alumno_form' in request.POST: # Si se envió el formulario de asignar alumno
-            grupo_alumno_form = GrupoAlumnoForm(request.POST, grupo=self.object)
-            if grupo_alumno_form.is_valid():
-                asignacion = grupo_alumno_form.save(commit=False)
-                asignacion.grupo = self.object
-                asignacion.save()
-                return redirect('grupos:detalleGrupo', pk=self.object.pk)
-            else:
-                context = self.get_context_data(object=self.object)
-                context['grupo_alumno_form'] = grupo_alumno_form
-                return self.render_to_response(context)
-        elif 'submit_remove_alumno_from_group' in request.POST: # ¡Nuevo! Para eliminar alumno del grupo
-            asignacion_id = request.POST.get('asignacion_id')
-            if asignacion_id:
-                try:
-                    asignacion = GrupoAlumno.objects.get(pk=asignacion_id, grupo=self.object)
-                    asignacion.delete()
-                except GrupoAlumno.DoesNotExist:
-                    # Manejar el error si la asignación no existe o no pertenece a este grupo
-                    pass # Podrías añadir un mensaje de error aquí
-            return redirect('grupos:detalleGrupo', pk=self.object.pk)
+            return redirect('grupos:detalleGrupo', pk=grupo.pk)
 
-        # Si no se reconoce el botón de submit, recarga la página
-        return redirect('grupos:detalleGrupo', pk=self.object.pk)
+        # Asignar un alumno seleccionado
+        if 'submit_assign_alumno_form' in request.POST:
+            alumno_pk = request.POST.get('alumno_pk')
+            alumno = get_object_or_404(Alumno, pk=alumno_pk, activo=True)
+            # crear asignación si no existe
+            GrupoAlumno.objects.get_or_create(alumno=alumno, grupo=grupo)
+            return redirect('grupos:detalleGrupo', pk=grupo.pk)
+
+        # ... (eliminar alumno ya lo tienes) ...
+        if 'submit_remove_alumno_from_group' in request.POST:
+            asignacion_id = request.POST.get('asignacion_id')
+            GrupoAlumno.objects.filter(pk=asignacion_id, grupo=grupo).delete()
+            return redirect('grupos:detalleGrupo', pk=grupo.pk)
+
+        return redirect('grupos:detalleGrupo', pk=grupo.pk)
