@@ -16,12 +16,13 @@
     {% for copy in "12" %}
       <div class="recibo-container">
         <div class="recibo-header">
-          <h2>AMÉRICA – Centro de Inglés</h2>
-          <img src="{% static 'images/logo_cia.png' %}" alt="logo del centro de ingles">
+          <h2>Centro de Inglés América</h2>
+          <p> CLAVE: 07PBT0384B</p>          
+          <img class="recibo-logo" src="{% static 'images/logo_cia.png' %}" alt="logo del centro de ingles">
           <p class="recibo-numero">Recibo No. {{ object.pk|stringformat:"04d" }}</p>
         </div>
         <div class="recibo-content">
-          <p><strong>Alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }}</p>
+          <p><strong>Nombre del alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }}</p>
           {% if type == 'inscripcion' %}
             <p><strong>Concepto:</strong> Inscripción ({{ object.nivel }})</p>
             <p><strong>Fecha:</strong> {{ object.fecha_inscripcion|date:"Y-m-d" }}</p>
@@ -42,8 +43,7 @@
           {% endif %}
         </div>
         <div class="recibo-footer">
-          <p>Av. Sur Oriente No.57 Barrio Candelaria, Ocosingo, Chiapas C.P. 29950</p>
-          <p>Secretaría de Educación Pública • www.america-ingles.mx</p>
+          <p>4A. Av. Sur Oriente No.57 Barrio Candelaria, Ocosingo, Chiapas C.P. 29950</p>
         </div>
       </div>
     {% endfor %}

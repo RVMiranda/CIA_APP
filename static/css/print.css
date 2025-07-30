@@ -10,9 +10,11 @@
   border-radius: .25rem;
   cursor: pointer;
 }
-@media print { .no-print { display: none !important; } }
+@media print {
+  .no-print { display: none !important; }
+}
 
-/* Quitar márgenes del navegador en impresión */
+/* Márgenes cero para impresión A4 */
 @page {
   size: A4 portrait;
   margin: 0;
@@ -24,44 +26,85 @@
     margin: 0;
     padding: 0;
   }
+
+  /* Contenedor que divide la hoja en dos mitades iguales */
   .print-body {
     display: grid;
     grid-template-rows: 50% 50%;
-    row-gap: 0;
     height: 100vh;
     box-sizing: border-box;
-    padding: 1cm 0; /* margen vertical */
+    padding: 1cm 0;
   }
+
+  /* Cada recibo ocupa su celda */
   .recibo-container {
     border: 1px solid #b91c1c;
-    margin: 0 1cm;        /* margen horizontal */
-    padding: .5cm;
+    margin: 0 1cm;
+    padding: 0.75cm;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;         /* ocupa toda la celda */
+    height: 100%;
   }
+
+  /* HEADER: logo, textos y número */
+  /* HEADER: grid de 2x2 */
   .recibo-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: .5cm;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "title logo"
+      "clave numero";
+    align-items: center;
+    gap: 0.2cm 0.5cm;   /* fila-gap, columna-gap */
+    margin-bottom: 0.8cm;
   }
   .recibo-header h2 {
-    color: #b91c1c;
-    font-size: 1.1em;
+    grid-area: title;
     margin: 0;
+    color: #b91c1c;
+    font-size: 1.2em;
+  }
+  .recibo-header p { margin: 0; font-size: 0.9em; line-height:1.2; }
+  .recibo-header p:nth-of-type(1) {
+    /* CLAVE */
+    grid-area: clave;
+    justify-self: start;
+  }
+  .recibo-logo {
+    grid-area: logo;
+    max-height: 3.5cm;   /* más grande */
+    max-width: 3.5cm;
+    justify-self: end;
   }
   .recibo-numero {
-    font-size: .9em;
-    margin: 0;
+    grid-area: numero;
+    justify-self: end;
+    font-size: 0.95em;
+    font-weight: bold;
   }
+
+  /* CONTENIDO */
   .recibo-content p {
-    margin: .3cm 0;
-    font-size: .9em;
+    margin: 0.4cm 0;
+    font-size: 0.95em;
   }
+  .recibo-content p strong {
+    display: inline-block;
+    width: 4cm;
+  }
+
+  /* FOOTER */
   .recibo-footer {
     text-align: center;
-    font-size: .75em;
+    font-size: 0.75em;
+    margin-top: 1cm;
+  }
+
+  /* Evita saltos dentro del recibo */
+  .recibo-container {
+    break-inside: avoid;
   }
 }
