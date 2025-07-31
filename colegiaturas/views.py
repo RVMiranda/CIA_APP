@@ -5,6 +5,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from datetime import timedelta, date
 import calendar # Para obtener el último día del mes
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Colegiatura, Descuento, Recargo
 from .forms import ColegiaturaPagoForm, DescuentoForm, RecargoForm 
@@ -40,7 +42,7 @@ def _generate_next_month_tuition(alumno, current_colegiatura):
     return new_colegiatura
 
 
-class ColegiaturaListView(ListView):
+class ColegiaturaListView(LoginRequiredMixin, ListView):
     model = Colegiatura
     template_name = 'colegiaturas/colegiaturas.html'
     context_object_name = 'colegiaturas'
@@ -107,7 +109,7 @@ class ColegiaturaListView(ListView):
 
         return context
 
-class ColegiaturaDetailView(DetailView):
+class ColegiaturaDetailView(LoginRequiredMixin, DetailView):
     model = Alumno
     template_name = 'colegiaturas/detalleColegiatura.html'
     context_object_name = 'alumno'

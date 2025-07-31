@@ -71,6 +71,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LOGIN_URL = 'login' 
+LOGIN_REDIRECT_URL = 'alumnos:lista_alumnos'
+LOGOUT_REDIRECT_URL = 'login'  
+
+SESSION_COOKIE_AGE = 7200  # 2 hora, en segundos
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # que no se cierre al cerrar el navegador
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'cia_app.urls'

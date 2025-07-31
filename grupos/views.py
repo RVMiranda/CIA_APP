@@ -5,10 +5,10 @@ from .models import Grupo, GrupoAlumno
 from .forms import GrupoForm, GrupoAlumnoForm
 from alumnos.models import NivelIngles, Alumno
 from django.db.models import Q
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 
-class GrupoListView(ListView):
+class GrupoListView(LoginRequiredMixin, ListView):
     model = Grupo
     template_name = 'grupos/grupos.html'
     context_object_name = 'grupos'
@@ -35,7 +35,7 @@ class GrupoListView(ListView):
 
         return context
 
-class GrupoCreateView(CreateView):
+class GrupoCreateView(LoginRequiredMixin, CreateView):
     model = Grupo
     form_class = GrupoForm
     template_name = 'grupos/agregarGrupo.html'
@@ -47,7 +47,7 @@ class GrupoCreateView(CreateView):
         context['boton_submit'] = 'Guardar Grupo'
         return context
 
-class GrupoDetailView(DetailView):
+class GrupoDetailView(LoginRequiredMixin, DetailView):
     model = Grupo
     template_name = 'grupos/detalleGrupo.html'
     context_object_name = 'grupo'

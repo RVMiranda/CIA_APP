@@ -10,8 +10,10 @@ from colegiaturas.models import Colegiatura, Descuento, Recargo
 from .forms import AlumnoForm, AlumnoInscripcionForm, ReinscripcionForm
 from grupos.forms import GrupoAlumnoForm
 from .utils import generar_matricula
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required
 def alumnos_view(request):
     page = request.GET.get('page', 1)
     search_query = request.GET.get('q', '')
@@ -62,6 +64,7 @@ def alumnos_view(request):
 
     return render(request, 'alumnos/alumnos.html', context)
 
+@login_required
 def agregar_alumno(request):
     if request.method == 'POST':
         form = AlumnoInscripcionForm(request.POST)
@@ -105,6 +108,7 @@ def agregar_alumno(request):
         'form': form,
     })
 
+@login_required
 def alumno_detail_view(request, pk):
     alumno = get_object_or_404(Alumno, pk=pk)
 
