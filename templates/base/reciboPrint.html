@@ -22,7 +22,7 @@
           <p class="recibo-numero">Recibo No. {{ object.pk|stringformat:"04d" }}</p>
         </div>
         <div class="recibo-content">
-          <p><strong>Nombre del alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }}</p>
+          <p><strong>Nombre del alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }} (Matricula: {{object.alumno.matricula}})</p>
           {% if type == 'inscripcion' %}
             <p><strong>Concepto:</strong> Inscripción ({{ object.nivel }})</p>
             <p><strong>Fecha:</strong> {{ object.fecha_inscripcion|date:"Y-m-d" }}</p>
