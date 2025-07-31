@@ -57,32 +57,27 @@ class Colegiatura(models.Model):
     recargo_aplicado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Recargo Aplicado")
     descuento_aplicado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Descuento Aplicado")
     
-    # Relaciones para registrar qué descuento/recargo se aplicó (opcional, para historial)
+    # Relaciones para registrar qué descuento/recargo se aplicó
     descuento_ref = models.ForeignKey(Descuento, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Descuento Usado")
     recargo_ref = models.ForeignKey(Recargo, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Recargo Usado")
 
-    estado_pago = models.CharField(max_length=20, choices=ESTADO_CHOICES, default=PENDIENTE, verbose_name="Estado del Pago") # Campo crucial
-    fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro") # Similar a tu fecha_creacion
+    estado_pago = models.CharField(max_length=20, choices=ESTADO_CHOICES, default=PENDIENTE, verbose_name="Estado del Pago")
+    fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
 
     class Meta:
         verbose_name = "Colegiatura"
         verbose_name_plural = "Colegiaturas"
-        # Un alumno solo puede tener una colegiatura por mes y año
         unique_together = ('alumno', 'anio', 'mes')
         ordering = ['anio', 'mes', 'alumno__apellido', 'alumno__nombre']
 
     def __str__(self):
-        # Usamos get_estado_pago_display para mostrar el nombre legible del estado
         return f"Colegiatura de {self.alumno.nombre} {self.alumno.apellido} - {self.mes}/{self.anio} ({self.get_estado_pago_display()})"
 
     def calcular_monto_final(self):
-        """
-        Calcula y actualiza recargos y descuentos en base al estado y fechas.
-        """
         monto = self.monto_base
         hoy = timezone.now().date()
 
-        # 1) Descuento (antes o a tiempo)
+        # Descuento
         if self.descuento_ref and (self.fecha_pago is None or self.fecha_pago <= self.fecha_vencimiento):
             desc = self.monto_base * self.descuento_ref.porcentaje
             monto -= desc
@@ -90,8 +85,7 @@ class Colegiatura(models.Model):
         else:
             self.descuento_aplicado = 0
 
-        # 2) Recargo: si ya venció y está pendiente, o si se pagó tarde
-        #    Primero obtenemos la referencia al modelo recargo (puede venir de self o por defecto)
+        # obtenemos la referencia al modelo recargo (puede venir de self o por defecto)
         rec_ref = self.recargo_ref or Recargo.objects.first()
 
         # Usamos fecha_pago si existe, o hoy si aún está pendiente
@@ -101,10 +95,8 @@ class Colegiatura(models.Model):
             recargo = self.monto_base * rec_ref.porcentaje_por_dia * dias_atraso
             monto += recargo
             self.recargo_aplicado = recargo
-            # Guardamos la referencia al recargo utilizado
             self.recargo_ref = rec_ref
         else:
             self.recargo_aplicado = 0
 
-        # Devolvemos el monto final, sin guardar; quien llame a este método hará save()
         return max(0, monto)

@@ -11,14 +11,9 @@ from .forms import ColegiaturaPagoForm, DescuentoForm, RecargoForm
 from alumnos.models import Alumno 
 
 def _get_last_day_of_month(year, month):
-    """Retorna el último día del mes y año dados."""
     return calendar.monthrange(year, month)[1]
 
 def _generate_next_month_tuition(alumno, current_colegiatura):
-    """
-    Genera la colegiatura para el siguiente mes para un alumno dado,
-    basándose en la última colegiatura pagada.
-    """
     # Calculamos el mes y año de la próxima colegiatura
     next_month_date = date(current_colegiatura.anio, current_colegiatura.mes, 1) + timedelta(days=32)
     next_month = next_month_date.month

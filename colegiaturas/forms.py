@@ -2,9 +2,6 @@ from django import forms
 from .models import Colegiatura, Descuento, Recargo
 
 class ColegiaturaPagoForm(forms.ModelForm):
-    """
-    Formulario para registrar el pago de una colegiatura.
-    """
     class Meta:
         model = Colegiatura
         fields = ['fecha_pago', 'monto_pagado', 'estado_pago'] # estado_pago se usará para forzar a 'Pagado'
@@ -29,22 +26,19 @@ class ColegiaturaPagoForm(forms.ModelForm):
         if estado_pago == Colegiatura.PAGADO:
             if not fecha_pago:
                 self.add_error('fecha_pago', 'La fecha de pago es obligatoria si el estado es "Pagado".')
-            if monto_pagado is None: # Usar 'is None' para DecimalField
+            if monto_pagado is None:
                 self.add_error('monto_pagado', 'El monto pagado es obligatorio si el estado es "Pagado".')
         
         return cleaned_data
 
 class DescuentoForm(forms.ModelForm):
-    """
-    Formulario para la gestión de descuentos.
-    """
     class Meta:
         model = Descuento
         fields = '__all__'
         widgets = {
             'descripcion': forms.TextInput(attrs={'class': 'input-field'}),
             'meses_anticipo': forms.NumberInput(attrs={'class': 'input-field'}),
-            'porcentaje': forms.NumberInput(attrs={'class': 'input-field', 'step': '0.01'}), # Permite decimales
+            'porcentaje': forms.NumberInput(attrs={'class': 'input-field', 'step': '0.01'}),
         }
         labels = {
             'descripcion': 'Descripción del Descuento',
@@ -53,15 +47,12 @@ class DescuentoForm(forms.ModelForm):
         }
 
 class RecargoForm(forms.ModelForm):
-    """
-    Formulario para la gestión de recargos.
-    """
     class Meta:
         model = Recargo
         fields = '__all__'
         widgets = {
             'descripcion': forms.TextInput(attrs={'class': 'input-field'}),
-            'porcentaje_por_dia': forms.NumberInput(attrs={'class': 'input-field', 'step': '0.001'}), # Permite decimales más pequeños
+            'porcentaje_por_dia': forms.NumberInput(attrs={'class': 'input-field', 'step': '0.001'}),
         }
         labels = {
             'descripcion': 'Descripción del Recargo',
