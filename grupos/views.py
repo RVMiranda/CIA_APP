@@ -15,10 +15,8 @@ class GrupoListView(ListView):
     paginate_by = 10 # Paginación para la lista de grupos
 
     def get_queryset(self):
-        # Obtener el queryset base, ordenado por nivel y luego por nombre
         queryset = super().get_queryset().order_by('nivel__nombre', 'nombre')
 
-        # Lógica de Filtrado por Nivel de Inglés
         nivel_filter = self.request.GET.get('nivel', None)
         if nivel_filter:
             queryset = queryset.filter(nivel__nombre=nivel_filter)
@@ -27,12 +25,9 @@ class GrupoListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Obtener todos los niveles de inglés para el filtro del select
         context['niveles_ingles'] = NivelIngles.objects.all().order_by('nombre', 'sub_nivel')
-        # Para mantener el valor seleccionado en el filtro
         context['nivel_seleccionado'] = self.request.GET.get('nivel', None)
 
-        # Construir los parámetros de la URL para los enlaces de paginación y filtros
         query_params = self.request.GET.copy()
         if 'page' in query_params:
             del query_params['page']
@@ -43,8 +38,8 @@ class GrupoListView(ListView):
 class GrupoCreateView(CreateView):
     model = Grupo
     form_class = GrupoForm
-    template_name = 'grupos/agregarGrupo.html' # Esta es la plantilla que acabamos de definir
-    success_url = reverse_lazy('grupos:lista_grupos') # Redirige a la lista de grupos después de crear
+    template_name = 'grupos/agregarGrupo.html'
+    success_url = reverse_lazy('grupos:lista_grupos')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,7 +56,6 @@ class GrupoDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         grupo = self.object
 
-        # Formulario para editar el grupo
         context['grupo_form'] = GrupoForm(instance=grupo)
 
         # Filtro de búsqueda
@@ -82,8 +76,6 @@ class GrupoDetailView(DetailView):
         context['available_alumnos'] = disponibles
         context['search_query'] = q
 
-        # Formulario para asignar (solo contiene el campo "grupo")
-        # pero vamos a tomar el alumno desde POST manualmente
         context['grupo_alumno_form'] = GrupoAlumnoForm(grupo=grupo)
 
         # Alumnos ya en el grupo
@@ -99,22 +91,20 @@ class GrupoDetailView(DetailView):
         self.object = self.get_object()
         grupo = self.object
 
-        # Edición de datos de grupo
         if 'submit_grupo_form' in request.POST:
             form = GrupoForm(request.POST, instance=grupo)
             if form.is_valid():
                 form.save()
             return redirect('grupos:detalleGrupo', pk=grupo.pk)
 
-        # Asignar un alumno seleccionado
+        # Asignamos un alumno seleccionado
         if 'submit_assign_alumno_form' in request.POST:
             alumno_pk = request.POST.get('alumno_pk')
             alumno = get_object_or_404(Alumno, pk=alumno_pk, activo=True)
-            # crear asignación si no existe
+            # creamos la asignación si no existe
             GrupoAlumno.objects.get_or_create(alumno=alumno, grupo=grupo)
             return redirect('grupos:detalleGrupo', pk=grupo.pk)
 
-        # ... (eliminar alumno ya lo tienes) ...
         if 'submit_remove_alumno_from_group' in request.POST:
             asignacion_id = request.POST.get('asignacion_id')
             GrupoAlumno.objects.filter(pk=asignacion_id, grupo=grupo).delete()

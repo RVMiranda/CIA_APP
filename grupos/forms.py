@@ -31,7 +31,6 @@ class GrupoAlumnoForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # El grupo actual se pasará como argumento al inicializar el formulario en la vista
         self.grupo = kwargs.pop('grupo', None)
         self.alumno_instance_for_filter = kwargs.pop('alumno', None)
         super().__init__(*args, **kwargs)
@@ -41,7 +40,6 @@ class GrupoAlumnoForm(forms.ModelForm):
             alumnos_en_este_grupo = GrupoAlumno.objects.filter(grupo=self.grupo).values_list('alumno__pk', flat=True)
             self.fields['alumno'].queryset = Alumno.objects.filter(activo=True).exclude(pk__in=alumnos_en_este_grupo).order_by('apellido', 'nombre')
         else:
-            # Si no se pasa un grupo (ej. en otras vistas si se usara este form), solo mostrar activos
             self.fields['alumno'].queryset = Alumno.objects.filter(activo=True).order_by('apellido', 'nombre')
 
     def clean(self):
@@ -49,8 +47,7 @@ class GrupoAlumnoForm(forms.ModelForm):
         alumno_seleccionado = cleaned_data.get('alumno')
 
         if self.grupo and alumno_seleccionado:
-            # Validar que el alumno no esté ya en ESTE grupo específico
-            # (aunque el queryset ya debería manejar esto, es una doble verificación)
+            # Validamos que el alumno no esté ya en ESTE grupo específico
             if GrupoAlumno.objects.filter(alumno=alumno_seleccionado, grupo=self.grupo).exists():
                 raise forms.ValidationError(
                     f"El alumno '{alumno_seleccionado.nombre} {alumno_seleccionado.apellido}' ya está asignado a este grupo."
