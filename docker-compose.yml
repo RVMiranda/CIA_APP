@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    restart: always
     command: python manage.py runserver 0.0.0.0:8001
     volumes:
       - .:/app
@@ -20,6 +21,7 @@ services:
 
   db:
     image: mysql:8.0
+    restart: always 
     env_file:
       - .env
     environment:
