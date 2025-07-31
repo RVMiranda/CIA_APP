@@ -86,6 +86,18 @@ class ColegiaturaListView(ListView):
                 Q(alumno__matricula__icontains=search_query)
             )
 
+        today = timezone.now().date()
+        default_recargo = Recargo.objects.first()
+        for c in queryset:
+            if c.estado_pago == Colegiatura.PENDIENTE and c.fecha_vencimiento < today:
+                c.estado_pago = Colegiatura.ATRASADO
+
+                if not c.recargo_ref:
+                    c.recargo_ref = default_recargo
+
+                c.calcular_monto_final()
+                c.save(update_fields=['estado_pago', 'recargo_aplicado', 'descuento_aplicado', 'recargo_ref'])
+
         return queryset.order_by('-anio', '-mes', 'alumno__apellido', 'alumno__nombre')
 
     def get_context_data(self, **kwargs):
@@ -122,19 +134,35 @@ class ColegiaturaDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         alumno = self.get_object()
-        
-        # Obtener todas las colegiaturas del alumno, ordenadas cronológicamente
-        colegiaturas = Colegiatura.objects.filter(alumno=alumno).order_by('anio', 'mes')
-        context['colegiaturas'] = colegiaturas
-        
-        # Formulario para marcar pago (vacío para GET)
-        context['pago_form'] = ColegiaturaPagoForm()
-        
-        # Obtener la última colegiatura generada para saber cuál es la "actual"
-        last_generated_colegiatura = colegiaturas.order_by('-anio', '-mes').first()
-        context['last_generated_colegiatura'] = last_generated_colegiatura
+        hoy = timezone.now().date()
 
-        context['titulo'] = f'Historial de Colegiaturas de {alumno.nombre} {alumno.apellido}'
+        colegiaturas = Colegiatura.objects.filter(alumno=alumno).order_by('anio', 'mes')
+        default_recargo = Recargo.objects.first()
+
+        for c in colegiaturas:
+            # Si ya venció y no está "Pagado", lo marcamos Atrasado
+            if c.fecha_vencimiento < hoy and c.estado_pago != Colegiatura.PAGADO:
+                c.estado_pago = Colegiatura.ATRASADO
+                # Aseguramos que tenga recargo_ref
+                if not c.recargo_ref:
+                    c.recargo_ref = default_recargo
+
+            # RECALCULAMOS siempre (tanto para pendientes atrasados
+            # como para los que ya estaban atrasados)
+            c.calcular_monto_final()
+            # Guardamos los tres campos, para que recargo_aplicado
+            # y descuento_aplicado queden persistidos
+            c.save(update_fields=[
+                'estado_pago',
+                'recargo_aplicado',
+                'descuento_aplicado',
+                'recargo_ref'
+            ])
+
+        context['colegiaturas'] = colegiaturas
+        context['pago_form']  = ColegiaturaPagoForm()
+        context['last_generated_colegiatura'] = colegiaturas.order_by('-anio','-mes').first()
+        context['titulo']     = f'Historial de Colegiaturas de {alumno.nombre} {alumno.apellido}'
         return context
 
     def post(self, request, *args, **kwargs):

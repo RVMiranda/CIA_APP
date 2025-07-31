@@ -77,38 +77,34 @@ class Colegiatura(models.Model):
 
     def calcular_monto_final(self):
         """
-        Calcula el monto final a pagar, incluyendo recargos y descuentos.
-        Esta función se usaría antes de marcar como pagado o para mostrar el monto actual.
+        Calcula y actualiza recargos y descuentos en base al estado y fechas.
         """
         monto = self.monto_base
-        
-        # Aplicar descuento si la fecha de pago es anterior a la fecha de vencimiento
-        # y si hay un descuento de anticipo configurado
-        # NOTA: La lógica de descuento por meses de anticipo es más compleja.
-        # Aquí asumimos que el descuento se aplica si se paga antes de la fecha de vencimiento.
-        # Si el descuento es por "meses de anticipo", la lógica debería ser más sofisticada
-        # (ej. si se paga la colegiatura de septiembre en julio, se aplica el descuento de 2 meses).
-        # Por simplicidad ahora, solo aplicaremos un descuento si existe y se paga a tiempo.
-        
-        # Si hay un descuento_ref y la colegiatura aún no ha vencido (o se paga antes de vencer)
-        # Esta lógica puede necesitar afinarse según las reglas exactas de tu cliente.
-        # Por ahora, un descuento se aplica si el pago es a tiempo.
+        hoy = timezone.now().date()
+
+        # 1) Descuento (antes o a tiempo)
         if self.descuento_ref and (self.fecha_pago is None or self.fecha_pago <= self.fecha_vencimiento):
-            monto -= (self.monto_base * self.descuento_ref.porcentaje)
-            # Actualizamos el campo descuento_aplicado del modelo
-            self.descuento_aplicado = (self.monto_base * self.descuento_ref.porcentaje)
+            desc = self.monto_base * self.descuento_ref.porcentaje
+            monto -= desc
+            self.descuento_aplicado = desc
         else:
-            self.descuento_aplicado = 0.00
+            self.descuento_aplicado = 0
 
+        # 2) Recargo: si ya venció y está pendiente, o si se pagó tarde
+        #    Primero obtenemos la referencia al modelo recargo (puede venir de self o por defecto)
+        rec_ref = self.recargo_ref or Recargo.objects.first()
 
-        # Aplicar recargo si la fecha de pago es posterior a la fecha de vencimiento
-        if self.fecha_pago and self.fecha_pago > self.fecha_vencimiento and self.recargo_ref:
-            dias_atraso = (self.fecha_pago - self.fecha_vencimiento).days
-            recargo_calculado = self.monto_base * self.recargo_ref.porcentaje_por_dia * dias_atraso
-            monto += recargo_calculado
-            # Actualizamos el campo recargo_aplicado del modelo
-            self.recargo_aplicado = recargo_calculado
+        # Usamos fecha_pago si existe, o hoy si aún está pendiente
+        fecha_calculo = self.fecha_pago or hoy
+        if rec_ref and fecha_calculo > self.fecha_vencimiento:
+            dias_atraso = (fecha_calculo - self.fecha_vencimiento).days
+            recargo = self.monto_base * rec_ref.porcentaje_por_dia * dias_atraso
+            monto += recargo
+            self.recargo_aplicado = recargo
+            # Guardamos la referencia al recargo utilizado
+            self.recargo_ref = rec_ref
         else:
-            self.recargo_aplicado = 0.00
-            
-        return max(0, monto) # Asegura que el monto no sea negativo
+            self.recargo_aplicado = 0
+
+        # Devolvemos el monto final, sin guardar; quien llame a este método hará save()
+        return max(0, monto)
