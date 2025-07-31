@@ -149,6 +149,8 @@ class ColegiaturaDetailView(DetailView):
             
             if pago_form.is_valid():
                 colegiatura = pago_form.save(commit=False)
+                colegiatura.fecha_pago   = pago_form.cleaned_data['fecha_pago']
+                colegiatura.monto_pagado = pago_form.cleaned_data['monto_pagado']
                 colegiatura.estado_pago = Colegiatura.PAGADO # Aseguramos que el estado sea Pagado
                 
                 # --- Lógica para aplicar recargos y descuentos ---
@@ -163,7 +165,8 @@ class ColegiaturaDetailView(DetailView):
 
                 # Calcular el monto final con la lógica del modelo
                 # Este método también actualiza recargo_aplicado y descuento_aplicado
-                colegiatura.monto_pagado = colegiatura.calcular_monto_final()
+                #colegiatura.monto_pagado = colegiatura.calcular_monto_final()
+                colegiatura.calcular_monto_final()
                 colegiatura.save()
 
                 # Después de marcar el pago, generar la colegiatura del siguiente mes
