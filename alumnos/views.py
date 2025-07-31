@@ -13,67 +13,51 @@ from .utils import generar_matricula
 
 # Create your views here.
 def alumnos_view(request):
-    """
-    Vista para mostrar la lista de alumnos (activos o de baja) con paginación,
-    filtrado por nivel de inglés y búsqueda por nombre, apellido o matrícula.
-    """
     page = request.GET.get('page', 1)
     search_query = request.GET.get('q', '')
     nivel_filter = request.GET.get('nivel', None)
-    # Nuevo parámetro para el estado del alumno: 'activo' por defecto, puede ser 'baja'
     estado_filter = request.GET.get('estado', 'activo')
 
-    # 1. Determinar el queryset base según el estado (activo/baja)
     if estado_filter == 'baja':
         alumnos_base_queryset = Alumno.objects.filter(activo=False)
-    else: # Por defecto o si es 'activo'
+    else:
         alumnos_base_queryset = Alumno.objects.filter(activo=True)
 
-    # Ordenar el queryset base
     alumnos_filtrados = alumnos_base_queryset.order_by('apellido', 'nombre')
 
-    # 2. Aplicar la búsqueda por nombre, apellido o matrícula
     if search_query:
         search_query = search_query.strip()
         alumnos_filtrados = alumnos_filtrados.filter(
-            Q(nombre__icontains=search_query) | # Busca por nombre (insensible a mayúsculas/minúsculas)
-            Q(apellido__icontains=search_query) | # Busca por apellido
-            Q(matricula__icontains=search_query) # Busca por matrícula
-        ).distinct() # Usa distinct() para evitar duplicados si un alumno coincide en múltiples campos
+            Q(nombre__icontains=search_query) |
+            Q(apellido__icontains=search_query) |
+            Q(matricula__icontains=search_query)
+        ).distinct()
 
-    # 3. Aplicar el filtro por nivel de inglés
-    # Este filtro se aplica a los alumnos que pertenecen a un GrupoAlumno con el nivel seleccionado
     if nivel_filter:
         alumnos_filtrados = alumnos_filtrados.filter(grupoalumno__grupo__nivel__nombre=nivel_filter).distinct()
 
-    # 4. Realizar la paginación
-    paginator = Paginator(alumnos_filtrados, 10) # 10 alumnos por página, puedes ajustar este número
+    paginator = Paginator(alumnos_filtrados, 10) # 10 alumnos por página
 
     try:
         page_obj = paginator.page(page)
     except PageNotAnInteger:
-        # Si la página no es un entero, entrega la primera página.
         page_obj = paginator.page(1)
     except EmptyPage:
-        # Si la página está fuera de rango (ej. 9999), entrega la última página de resultados.
         page_obj = paginator.page(paginator.num_pages)
 
-    # Obtener todos los niveles de inglés para el filtro del select
     niveles_ingles = NivelIngles.objects.all().order_by('nombre', 'sub_nivel')
 
-    # Construir los parámetros de la URL para los enlaces de paginación y filtros
-    # Esto es crucial para mantener los filtros y la búsqueda al cambiar de página
     query_params = request.GET.copy()
     if 'page' in query_params:
-        del query_params['page'] # Eliminar 'page' para construir la base de la URL
+        del query_params['page']
 
     context = {
-        'page_obj': page_obj, # Contiene los alumnos para la página actual
-        'search_query': search_query, # Para mantener el valor en el campo de búsqueda
-        'nivel_seleccionado': nivel_filter, # Para mantener el valor seleccionado en el filtro de nivel
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'nivel_seleccionado': nivel_filter,
         'niveles_ingles': niveles_ingles,
-        'estado_seleccionado': estado_filter, # Para que el HTML sepa qué botón de estado está activo
-        'query_params': query_params.urlencode(), # Parámetros para los enlaces de paginación y filtros
+        'estado_seleccionado': estado_filter,
+        'query_params': query_params.urlencode(),
     }
 
     return render(request, 'alumnos/alumnos.html', context)
@@ -82,12 +66,10 @@ def agregar_alumno(request):
     if request.method == 'POST':
         form = AlumnoInscripcionForm(request.POST)
         if form.is_valid():
-            # 1) Guardar Alumno (sin matricula)
             alumno = form.save(commit=False)
             alumno.matricula = generar_matricula(alumno.nombre, alumno.apellido)
             alumno.save()
 
-            # 2) Guardar Inscripcion ligada
             nivel = form.cleaned_data['nivel']
             monto = form.cleaned_data['monto']
             Inscripcion.objects.create(
@@ -96,7 +78,7 @@ def agregar_alumno(request):
                 monto=monto
             )
 
-            # --- Generar la primera colegiatura mensual ---
+            # Generamos la primer colegiatura mensual
             today = timezone.now().date()
             current_month = today.month
             current_year = today.year
@@ -106,16 +88,13 @@ def agregar_alumno(request):
             due_day = min(5, last_day)
             fecha_venc = date(current_year, current_month, due_day)
 
-            # Crear Colegiatura
             Colegiatura.objects.create(
                 alumno=alumno,
                 anio=current_year,
                 mes=current_month,
                 fecha_vencimiento=fecha_venc,
-                monto_base=650.00,         # usa tu valor por defecto
+                monto_base=650.00,         # 650 es el monto
                 estado_pago=Colegiatura.PENDIENTE,
-                # los demás campos (fecha_pago, monto_pagado, recargo, descuento)
-                # quedan en null o default según tu modelo
             )
 
             return redirect('alumnos:detalleAlumno', pk=alumno.pk)
@@ -141,16 +120,14 @@ def alumno_detail_view(request, pk):
                 reinscripcion = reinscripcion_form.save(commit=False)
                 reinscripcion.alumno = alumno
                 reinscripcion.save()
-                # Mensaje de éxito o redirección
                 return redirect('alumnos:detalleAlumno', pk=alumno.pk)
-    else: # Petición GET
-        alumno_form = AlumnoForm(instance=alumno) # Precarga los datos del alumno
-        reinscripcion_form = ReinscripcionForm() # Formulario vacío para nueva reinscripción
+    else:
+        alumno_form = AlumnoForm(instance=alumno)
+        reinscripcion_form = ReinscripcionForm()
 
-    # Obtener todas las reinscripciones del alumno para mostrarlas
+    # Obtenemos todas las reinscripciones del alumno para mostrarlas
     inscripciones = list(Inscripcion.objects.filter(alumno=alumno).order_by('fecha_inscripcion'))
-    reinscripciones = Reinscripcion.objects.filter(alumno=alumno).order_by('-fecha_reinscripcion')
-    
+    reinscripciones = Reinscripcion.objects.filter(alumno=alumno).order_by('-fecha_reinscripcion') 
 
     context = {
         'alumno': alumno,
