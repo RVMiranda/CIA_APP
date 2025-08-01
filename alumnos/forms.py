@@ -39,7 +39,13 @@ class AlumnoInscripcionForm(forms.ModelForm):
         max_digits=10,
         decimal_places=2,
         label="Monto de la inscripción",
-        widget=forms.NumberInput(attrs={'class': 'input-field', 'placeholder': '650.00'})
+        widget=forms.NumberInput(attrs={'class': 'input-field', 'placeholder': '150.00'})
+    )
+    es_nuevo = forms.BooleanField(
+        required=False,
+        label="¿Es alumno nuevo? (monto base de $700)",
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class':'mr-2'})
     )
 
     class Meta:
@@ -47,7 +53,7 @@ class AlumnoInscripcionForm(forms.ModelForm):
         fields = [
             'nombre', 'apellido', 'fecha_nacimiento',
             'edad', 'telefono', 'nombre_tutor', 'telefono_tutor',
-            'direccion',
+            'direccion', 'es_nuevo'
         ]
         widgets = {
             'nombre':           forms.TextInput(attrs={'class': 'input-field', 'placeholder': 'Alondra'}),
@@ -68,6 +74,7 @@ class AlumnoInscripcionForm(forms.ModelForm):
             'nombre_tutor': 'Nombre del tutor',
             'telefono_tutor': 'Teléfono del tutor',
             'direccion': 'Dirección del domicilio',
+            'es_nuevo': '¿Es alumno nuevo? (monto base de $700)',
         }
 
 class ReinscripcionForm(forms.ModelForm):
@@ -76,7 +83,7 @@ class ReinscripcionForm(forms.ModelForm):
         fields = ['nivel', 'monto']
         widgets = {
             'nivel': forms.Select(attrs={'class':'input-field'}),
-            'monto': forms.NumberInput(attrs={'class':'input-field','placeholder':'650.00'}),
+            'monto': forms.NumberInput(attrs={'class':'input-field','placeholder':'150.00'}),
         }
         labels = {
             'nivel': 'Nivel al que se reinscribe',

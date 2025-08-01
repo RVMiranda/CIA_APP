@@ -86,17 +86,18 @@ def agregar_alumno(request):
             current_month = today.month
             current_year = today.year
 
-            # Día de vencimiento: el día 5 (o el último si el mes es más corto)
+            # Día de vencimiento: el día 18 (o el último si el mes es más corto)
             last_day = _get_last_day_of_month(current_year, current_month)
-            due_day = min(5, last_day)
+            due_day = min(18, last_day)
             fecha_venc = date(current_year, current_month, due_day)
 
+            base = 700.00 if form.cleaned_data['es_nuevo'] else 650.00
             Colegiatura.objects.create(
                 alumno=alumno,
                 anio=current_year,
                 mes=current_month,
                 fecha_vencimiento=fecha_venc,
-                monto_base=650.00,         # 650 es el monto
+                monto_base=base,         # 650 es el monto si es alumno antiguo
                 estado_pago=Colegiatura.PENDIENTE,
             )
 

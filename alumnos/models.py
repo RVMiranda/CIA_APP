@@ -31,6 +31,7 @@ class Alumno(models.Model):
     telefono_tutor = models.CharField(max_length=15, null=True, blank=True, verbose_name="Teléfono del Tutor")
     direccion = models.CharField(max_length=255, null=True, blank=True, verbose_name="Dirección")
     activo = models.BooleanField(default=True, verbose_name="Activo")
+    es_nuevo = models.BooleanField(default=False, verbose_name="¿Es alumno nuevo?")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="Fecha de Actualización")
 
