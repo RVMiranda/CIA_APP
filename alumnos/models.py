@@ -21,6 +21,9 @@ class NivelIngles(models.Model):
         return f"{self.nombre} - {self.sub_nivel}" if self.sub_nivel else self.nombre
 
 class Alumno(models.Model):
+    DIA_PAGO_CHOICES = [
+        (1, '1'), (5, '5'), (10, '10'), (15, '15'), (18, '18'), (26, '26'), (30, '30'),
+    ]
     nombre = models.CharField(max_length=100, null=False, verbose_name="Nombre")
     apellido = models.CharField(max_length=100, null=False, verbose_name="Apellido")
     matricula = models.CharField(max_length=12, null=False, unique=True)
@@ -32,6 +35,7 @@ class Alumno(models.Model):
     direccion = models.CharField(max_length=255, null=True, blank=True, verbose_name="Dirección")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     es_nuevo = models.BooleanField(default=False, verbose_name="¿Es alumno nuevo?")
+    dia_pago_preferido = models.PositiveSmallIntegerField(choices=DIA_PAGO_CHOICES, default=5, verbose_name="Día de Pago Preferido")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name="Fecha de Actualización")
 

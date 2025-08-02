@@ -21,13 +21,15 @@ def _generate_next_month_tuition(alumno, current_colegiatura):
     next_month = next_month_date.month
     next_year = next_month_date.year
 
+    pref = alumno.dia_pago_preferido
     # Verificamos si ya existe una colegiatura para el próximo mes y año
     if Colegiatura.objects.filter(alumno=alumno, anio=next_year, mes=next_month).exists():
         return None
 
     # la fecha de vencimiento para la próxima colegiatura
     last_day_next_month = _get_last_day_of_month(next_year, next_month)
-    due_day = min(5, last_day_next_month) # El día 5
+    #due_day = min(5, last_day_next_month) # El día 5
+    due_day = min(pref, last_day_next_month)
     
     fecha_vencimiento_next_month = date(next_year, next_month, due_day)
 

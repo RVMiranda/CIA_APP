@@ -86,9 +86,11 @@ def agregar_alumno(request):
             current_month = today.month
             current_year = today.year
 
-            # Día de vencimiento: el día 18 (o el último si el mes es más corto)
+            # Día de vencimiento: el día  se elige en la inscripcion
+            pref = int(form.cleaned_data['dia_pago_preferido'])
             last_day = _get_last_day_of_month(current_year, current_month)
-            due_day = min(18, last_day)
+            #due_day = min(18, last_day)
+            due_day = min(pref, last_day)
             fecha_venc = date(current_year, current_month, due_day)
 
             base = 700.00 if form.cleaned_data['es_nuevo'] else 650.00
@@ -103,7 +105,7 @@ def agregar_alumno(request):
 
             return redirect('alumnos:detalleAlumno', pk=alumno.pk)
     else:
-        form = AlumnoInscripcionForm(initial={'activo': True})
+        form = AlumnoInscripcionForm(initial={'activo': True, 'es_nuevo': True, 'dia_pago_preferido': 15})
 
     return render(request, 'alumnos/agregarAlumno.html', {
         'form': form,

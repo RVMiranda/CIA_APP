@@ -47,13 +47,19 @@ class AlumnoInscripcionForm(forms.ModelForm):
         initial=True,
         widget=forms.CheckboxInput(attrs={'class':'mr-2'})
     )
+    dia_pago_preferido = forms.ChoiceField(
+        choices=Alumno.DIA_PAGO_CHOICES,
+        label="Día de pago preferido (fecha limite de pago)",
+        initial=15,
+        widget=forms.Select(attrs={'class':'input-field'})
+    )
 
     class Meta:
         model = Alumno
         fields = [
             'nombre', 'apellido', 'fecha_nacimiento',
             'edad', 'telefono', 'nombre_tutor', 'telefono_tutor',
-            'direccion', 'es_nuevo'
+            'direccion', 'es_nuevo', 'dia_pago_preferido'
         ]
         widgets = {
             'nombre':           forms.TextInput(attrs={'class': 'input-field', 'placeholder': 'Alondra'}),
@@ -75,6 +81,7 @@ class AlumnoInscripcionForm(forms.ModelForm):
             'telefono_tutor': 'Teléfono del tutor',
             'direccion': 'Dirección del domicilio',
             'es_nuevo': '¿Es alumno nuevo? (monto base de $700)',
+            'dia_pago_preferido': 'Día de pago preferido (fecha limite de pago)',
         }
 
 class ReinscripcionForm(forms.ModelForm):
