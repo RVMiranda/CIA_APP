@@ -158,17 +158,29 @@ class ColegiaturaDetailView(LoginRequiredMixin, DetailView):
             
             if pago_form.is_valid():
                 colegiatura = pago_form.save(commit=False)
-                colegiatura.fecha_pago   = pago_form.cleaned_data['fecha_pago']
+                pago_real = pago_form.cleaned_data['fecha_pago']
+                colegiatura.fecha_pago   = pago_real
                 colegiatura.monto_pagado = pago_form.cleaned_data['monto_pagado']
-                colegiatura.estado_pago = Colegiatura.PAGADO
-                
-                default_recargo = Recargo.objects.first() # Toma el primer recargo disponible
-                default_descuento = Descuento.objects.first() # Toma el primer descuento disponible
-                
-                colegiatura.recargo_ref = default_recargo
-                colegiatura.descuento_ref = default_descuento
+                colegiatura.estado_pago  = Colegiatura.PAGADO
 
-                #colegiatura.monto_pagado = colegiatura.calcular_monto_final()
+                # el recargo siempre se aplica si paga después de vencimiento
+                default_recargo = Recargo.objects.first()
+                colegiatura.recargo_ref = default_recargo
+
+                # descuento automático si paga con suficiente antelación
+                descuentos = Descuento.objects.order_by('-meses_anticipo')
+                aplicable = None
+                for d in descuentos:
+                    mes_diff = (
+                        (colegiatura.fecha_vencimiento.year - pago_real.year) * 12 +
+                        (colegiatura.fecha_vencimiento.month - pago_real.month)
+                    )
+                    if mes_diff >= d.meses_anticipo:
+                        aplicable = d
+                        break
+
+                colegiatura.descuento_ref = aplicable       
+
                 colegiatura.calcular_monto_final()
                 colegiatura.save()
 

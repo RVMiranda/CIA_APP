@@ -60,10 +60,10 @@
                                         {{ colegiatura.get_estado_pago_display }}
                                     </span>
                                 </td>
-                                <td>
-                                    {% if colegiatura.estado_pago == 'Pagado' %}
-                                        <a href="{% url 'colegiaturas:print_colegiatura' pk=colegiatura.pk %}" target="_blank" class="btn btn-secondary btn-sm">Imprimir</a>
-                                    {% elif colegiatura.estado_pago == 'Pendiente' or colegiatura.estado_pago == 'Atrasado' %}
+                                <td class="flex items-center space-x-2">
+                                    <a href="{% url 'colegiaturas:print_colegiatura' pk=colegiatura.pk %}" target="_blank" class="btn btn-secondary btn-sm">Imprimir</a>
+                                        
+                                    {% if colegiatura.estado_pago == 'Pendiente' or colegiatura.estado_pago == 'Atrasado' %}
                                         <!-- Botón para Marcar como Pagado -->
                                         <button type="button" class="btn btn-primary btn-sm"
                                                 x-data=""

@@ -36,6 +36,13 @@
             <p><strong>Vencimiento:</strong> {{ object.fecha_vencimiento|date:"Y-m-d" }}</p>
             <p><strong>Estado:</strong> {{ object.get_estado_pago_display }}</p>
             <p><strong>Monto Base:</strong> $ {{ object.monto_base }}</p>
+            {% if object.estado_pago == 'Atrasado' %}
+              <strong>Recargo aplicado del 1% diario:</strong> ${{ object.recargo_aplicado|floatformat:2 }}
+              <p>
+              <strong>Monto Final a Pagar:</strong>
+              $ {{ object.calcular_monto_final|floatformat:2 }}
+            </p>
+            {% endif %}           
             {% if object.fecha_pago %}
               <p><strong>Fecha Pago:</strong> {{ object.fecha_pago|date:"Y-m-d" }}</p>
               <p><strong>Monto Pagado:</strong> $ {{ object.monto_pagado }}</p>
