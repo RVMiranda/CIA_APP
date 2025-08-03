@@ -33,19 +33,19 @@
             <p><strong>Monto:</strong> $ {{ object.monto }}</p>
           {% else %}
             <p><strong>Concepto:</strong> Colegiatura {{ object.get_mes_display }} {{ object.anio }}</p>
-            <p><strong>Vencimiento:</strong> {{ object.fecha_vencimiento|date:"Y-m-d" }}</p>
-            <p><strong>Estado:</strong> {{ object.get_estado_pago_display }}</p>
-            <p><strong>Monto Base:</strong> $ {{ object.monto_base }}</p>
+            <p><strong>Fecha de vencimiento:</strong> {{ object.fecha_vencimiento|date:"Y-m-d" }}</p>
+            <p><strong>Estado del pago:</strong> {{ object.get_estado_pago_display }}</p>
+            <p><strong>Monto base:</strong> $ {{ object.monto_base }}</p>
             {% if object.estado_pago == 'Atrasado' %}
               <strong>Recargo aplicado del 1% diario:</strong> ${{ object.recargo_aplicado|floatformat:2 }}
               <p>
-              <strong>Monto Final a Pagar:</strong>
+              <strong>Monto total a pagar:</strong>
               $ {{ object.calcular_monto_final|floatformat:2 }}
             </p>
             {% endif %}           
             {% if object.fecha_pago %}
-              <p><strong>Fecha Pago:</strong> {{ object.fecha_pago|date:"Y-m-d" }}</p>
-              <p><strong>Monto Pagado:</strong> $ {{ object.monto_pagado }}</p>
+              <p><strong>Fecha de pago:</strong> {{ object.fecha_pago|date:"Y-m-d" }}</p>
+              <p><strong>Monto total pagado:</strong> $ {{ object.monto_pagado }}</p>
             {% endif %}
           {% endif %}
         </div>

@@ -36,7 +36,7 @@
                             <th>Mes/Año</th>
                             <th>Monto Base</th>
                             <th>Recargo</th>
-                            <th>Descuento</th>
+                            
                             <th>Monto Final</th>
                             <th>Fecha Vencimiento</th>
                             <th>Fecha Pago</th>
@@ -50,7 +50,7 @@
                                 <td>{{ colegiatura.mes }}/{{ colegiatura.anio }}</td>
                                 <td>${{ colegiatura.monto_base|floatformat:2 }}</td>
                                 <td>${{ colegiatura.recargo_aplicado|floatformat:2 }}</td>
-                                <td>${{ colegiatura.descuento_aplicado|floatformat:2 }}</td>
+                                
                                 <td>${{ colegiatura.monto_pagado|default:colegiatura.calcular_monto_final|floatformat:2 }}</td> {# Muestra monto pagado o calculado #}
                                 <td>{{ colegiatura.fecha_vencimiento|date:"d M Y" }}</td>
                                 <td>{% if colegiatura.fecha_pago %}{{ colegiatura.fecha_pago|date:"d M Y" }}{% else %}N/A{% endif %}</td>
