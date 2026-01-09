@@ -1,117 +1,177 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>{% block title %}Mi Escuela de Inglés{% endblock %}</title>
+		<!-- Tailwind CDN -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<!-- Alpine.js -->
+		<script
+			defer
+			src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+		></script>
+		<!-- CSS personalizado -->
+		<link rel="stylesheet" href="{% static 'css/alumnos/alumnos.css' %}" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+	</head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{% block title %}Mi Escuela de Inglés{% endblock %}</title>
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- CSS personalizado -->
-    <link rel="stylesheet" href="{% static 'css/alumnos/alumnos.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
+	<body class="bg-gray-50 min-h-screen py-8 font-inter">
+		<!-- NAVBAR GLOBAL -->
+		<nav class="bg-white shadow-md mb-8">
+			<div
+				class="container mx-auto px-4 flex items-center justify-between h-16"
+			>
+				<a
+					href="{% url 'alumnos:lista_alumnos' %}"
+					class="text-xl font-semibold text-red-700"
+				>
+					Centro de Inglés América
+				</a>
 
-<body class="bg-gray-50 min-h-screen py-8 font-inter">
+				<!-- Componente Alpine para el dropdown -->
+				<div x-data="{ open: false }" class="relative">
+					<button
+						@click="open = !open"
+						class="flex items-center space-x-1 text-medium-text hover:text-red-700 focus:outline-none"
+					>
+						<span>Alumnos</span>
+						<svg
+							class="w-4 h-4 transition-transform"
+							:class="{ 'rotate-180': open }"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4 4.7a.75.75 0 01-1.14 0l-4-4.7a.75.75 0 01.02-1.06z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</button>
 
-    <!-- NAVBAR GLOBAL -->
-    <nav class="bg-white shadow-md mb-8">
-        <div class="container mx-auto px-4 flex items-center justify-between h-16">
-            <a href="{% url 'alumnos:lista_alumnos' %}" class="text-xl font-semibold text-red-700">
-                Centro de Inglés América
-            </a>
+					<!-- Dropdown: x-show controla visibilidad -->
+					<div
+						x-show="open"
+						@click.away="open = false"
+						x-transition
+						class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+					>
+						<a
+							href="{% url 'alumnos:agregarAlumno' %}"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Agregar Alumno
+						</a>
+						<a
+							href="{% url 'alumnos:lista_alumnos' %}?estado=activo"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Alumnos Activos
+						</a>
+						<a
+							href="{% url 'alumnos:lista_alumnos' %}?estado=baja"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Alumnos de Baja
+						</a>
 
-            <!-- Componente Alpine para el dropdown -->
-            <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open"
-                    class="flex items-center space-x-1 text-medium-text hover:text-red-700 focus:outline-none">
-                    <span>Alumnos</span>
-                    <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': open }" fill="currentColor"
-                        viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4 4.7a.75.75 0 01-1.14 0l-4-4.7a.75.75 0 01.02-1.06z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
+						<!-- Añade más enlaces según tus apps -->
+					</div>
+				</div>
+				<div x-data="{ open: false }" class="relative">
+					<button
+						@click="open = !open"
+						class="flex items-center space-x-1 text-medium-text hover:text-red-700 focus:outline-none"
+					>
+						<span>Colegiaturas</span>
+						<svg
+							class="w-4 h-4 transition-transform"
+							:class="{ 'rotate-180': open }"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4 4.7a.75.75 0 01-1.14 0l-4-4.7a.75.75 0 01.02-1.06z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</button>
 
-                <!-- Dropdown: x-show controla visibilidad -->
-                <div x-show="open" @click.away="open = false" x-transition
-                    class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <a href="{% url 'alumnos:agregarAlumno' %}"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Agregar Alumno
-                    </a>
-                    <a href="{% url 'alumnos:lista_alumnos' %}?estado=activo"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Alumnos Activos
-                    </a>
-                    <a href="{% url 'alumnos:lista_alumnos' %}?estado=baja"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Alumnos de Baja
-                    </a>
-                    
-                    <!-- Añade más enlaces según tus apps -->
-                </div>
-            </div>
-            <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open"
-                    class="flex items-center space-x-1 text-medium-text hover:text-red-700 focus:outline-none">
-                    <span>Colegiaturas</span>
-                    <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': open }" fill="currentColor"
-                        viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4 4.7a.75.75 0 01-1.14 0l-4-4.7a.75.75 0 01.02-1.06z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
+					<!-- Dropdown: x-show controla visibilidad -->
+					<div
+						x-show="open"
+						@click.away="open = false"
+						x-transition
+						class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+					>
+						<a
+							href="{% url 'colegiaturas:lista_colegiaturas' %}"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Colegiaturas
+						</a>
+						<a
+							href="{% url 'colegiaturas:cobros_por_dia' %}"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Cobros por Día
+						</a>
+						<!-- Añade más enlaces según tus apps -->
+					</div>
+				</div>
+				<div x-data="{ open: false }" class="relative">
+					<button
+						@click="open = !open"
+						class="flex items-center space-x-1 text-medium-text hover:text-red-700 focus:outline-none"
+					>
+						<span>Grupos</span>
+						<svg
+							class="w-4 h-4 transition-transform"
+							:class="{ 'rotate-180': open }"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4 4.7a.75.75 0 01-1.14 0l-4-4.7a.75.75 0 01.02-1.06z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</button>
 
-                <!-- Dropdown: x-show controla visibilidad -->
-                <div x-show="open" @click.away="open = false" x-transition
-                    class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <a href="{% url 'colegiaturas:lista_colegiaturas' %}"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Colegiaturas
-                    </a>
-                    <!-- Añade más enlaces según tus apps -->
-                </div>
-            </div>
-            <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open"
-                    class="flex items-center space-x-1 text-medium-text hover:text-red-700 focus:outline-none">
-                    <span>Grupos</span>
-                    <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': open }" fill="currentColor"
-                        viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4 4.7a.75.75 0 01-1.14 0l-4-4.7a.75.75 0 01.02-1.06z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
+					<!-- Dropdown: x-show controla visibilidad -->
+					<div
+						x-show="open"
+						@click.away="open = false"
+						x-transition
+						class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+					>
+						<a
+							href="{% url 'grupos:agregarGrupo' %}"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Agregar grupo
+						</a>
+						<a
+							href="{% url 'grupos:lista_grupos' %}"
+							class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700"
+						>
+							Grupos disponibles
+						</a>
+					</div>
+				</div>
+			</div>
+		</nav>
 
-                <!-- Dropdown: x-show controla visibilidad -->
-                <div x-show="open" @click.away="open = false" x-transition
-                    class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <a href="{% url 'grupos:agregarGrupo' %}"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Agregar grupo
-                    </a>
-                    <a href="{% url 'grupos:lista_grupos' %}"
-                        class="block px-4 py-2 text-medium-text hover:bg-red-100 hover:text-red-700">
-                        Grupos disponibles
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </nav>
-
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="container mx-auto px-4">
-        {% block content %}{% endblock %}
-    </main>
-
-</body>
-
+		<!-- CONTENIDO PRINCIPAL -->
+		<main class="container mx-auto px-4">
+			{% block content %}{% endblock %}
+		</main>
+	</body>
 </html>

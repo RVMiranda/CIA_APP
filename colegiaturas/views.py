@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 import calendar # Para obtener el último día del mes
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -201,3 +201,27 @@ def print_colegiatura_view(request, pk):
         'type': 'colegiatura'
     }
     return render(request, 'base/reciboPrint.html', context)
+
+@login_required
+def cobros_por_dia(request):
+    fecha_str = request.GET.get('fecha')
+    if fecha_str:
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+    else:
+        fecha = timezone.now().date()
+        fecha_str = fecha.strftime('%Y-%m-%d')
+
+    cobros = Colegiatura.objects.filter(
+        fecha_pago=fecha,
+        estado_pago=Colegiatura.PAGADO
+    ).select_related('alumno')
+
+    total_dia = cobros.aggregate(Sum('monto_pagado'))['monto_pagado__sum'] or 0
+
+    context = {
+        'fecha': fecha,
+        'fecha_str': fecha_str,
+        'cobros': cobros,
+        'total_dia': total_dia,
+    }
+    return render(request, 'colegiaturas/cobros_por_dia.html', context)
