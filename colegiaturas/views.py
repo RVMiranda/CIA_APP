@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Colegiatura, Descuento, Recargo
 from .forms import ColegiaturaPagoForm, DescuentoForm, RecargoForm 
-from alumnos.models import Alumno 
+from alumnos.models import Alumno, Inscripcion, Reinscripcion 
 
 def _get_last_day_of_month(year, month):
     return calendar.monthrange(year, month)[1]
@@ -208,20 +208,70 @@ def cobros_por_dia(request):
     if fecha_str:
         fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
     else:
-        fecha = timezone.now().date()
+        # Usar localtime para obtener la fecha correcta configurada en TIME_ZONE
+        fecha = timezone.localtime(timezone.now()).date()
         fecha_str = fecha.strftime('%Y-%m-%d')
 
-    cobros = Colegiatura.objects.filter(
+    # 1. Colegiaturas PAGADAS en esa fecha
+    colegiaturas = Colegiatura.objects.filter(
         fecha_pago=fecha,
         estado_pago=Colegiatura.PAGADO
     ).select_related('alumno')
 
-    total_dia = cobros.aggregate(Sum('monto_pagado'))['monto_pagado__sum'] or 0
+    # 2. Inscripciones realizadas en esa fecha
+    inscripciones = Inscripcion.objects.filter(
+        fecha_inscripcion=fecha
+    ).select_related('alumno', 'nivel')
+
+    # 3. Reinscripciones realizadas en esa fecha
+    reinscripciones = Reinscripcion.objects.filter(
+        fecha_reinscripcion=fecha
+    ).select_related('alumno', 'nivel')
+
+    # Totales
+    total_colegiaturas = colegiaturas.aggregate(Sum('monto_pagado'))['monto_pagado__sum'] or 0
+    total_inscripciones = inscripciones.aggregate(Sum('monto'))['monto__sum'] or 0
+    total_reinscripciones = reinscripciones.aggregate(Sum('monto'))['monto__sum'] or 0
+
+    total_dia = total_colegiaturas + total_inscripciones + total_reinscripciones
+
+    # Unificar lista para el template
+    lista_cobros = []
+
+    for c in colegiaturas:
+        lista_cobros.append({
+            'alumno': c.alumno,
+            'concepto': f"Colegiatura {c.get_mes_display()} {c.anio}",
+            'monto_base': c.monto_base,
+            'descuento_aplicado': c.descuento_aplicado,
+            'recargo_aplicado': c.recargo_aplicado,
+            'monto_pagado': c.monto_pagado,
+        })
+
+    for i in inscripciones:
+        lista_cobros.append({
+            'alumno': i.alumno,
+            'concepto': f"Inscripción - {i.nivel}",
+            'monto_base': i.monto,
+            'descuento_aplicado': 0,
+            'recargo_aplicado': 0,
+            'monto_pagado': i.monto,
+        })
+    
+    for r in reinscripciones:
+        lista_cobros.append({
+            'alumno': r.alumno,
+            'concepto': f"Reinscripción - {r.nivel}",
+            'monto_base': r.monto,
+            'descuento_aplicado': 0,
+            'recargo_aplicado': 0,
+            'monto_pagado': r.monto,
+        })
 
     context = {
         'fecha': fecha,
         'fecha_str': fecha_str,
-        'cobros': cobros,
+        'cobros': lista_cobros,
         'total_dia': total_dia,
     }
     return render(request, 'colegiaturas/cobros_por_dia.html', context)
