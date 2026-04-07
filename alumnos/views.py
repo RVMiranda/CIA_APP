@@ -114,6 +114,8 @@ def agregar_alumno(request):
 @login_required
 def alumno_detail_view(request, pk):
     alumno = get_object_or_404(Alumno, pk=pk)
+    
+    grupo_actual = GrupoAlumno.objects.filter(alumno=alumno).select_related('grupo', 'grupo__nivel').first()
 
     if request.method == 'POST':
         if 'submit_alumno_form' in request.POST:
@@ -138,6 +140,7 @@ def alumno_detail_view(request, pk):
 
     context = {
         'alumno': alumno,
+        'grupo_actual': grupo_actual,
         'alumno_form': alumno_form,
         'reinscripcion_form': reinscripcion_form,
         'reinscripciones': reinscripciones,

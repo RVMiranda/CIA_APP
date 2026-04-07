@@ -162,6 +162,7 @@ class ColegiaturaDetailView(LoginRequiredMixin, DetailView):
                 colegiatura.fecha_pago   = pago_real
                 colegiatura.monto_pagado = pago_form.cleaned_data['monto_pagado']
                 colegiatura.estado_pago  = Colegiatura.PAGADO
+                colegiatura.fecha_auditoria_pago = timezone.now()
 
                 # el recargo siempre se aplica si paga después de vencimiento
                 default_recargo = Recargo.objects.first()
@@ -196,9 +197,17 @@ class ColegiaturaDetailView(LoginRequiredMixin, DetailView):
 
 def print_colegiatura_view(request, pk):
     colegiatura = get_object_or_404(Colegiatura, pk=pk)
+
+    if request.method == 'POST':
+        periodo_custom = request.POST.get('periodo_pago')
+        if periodo_custom:
+            colegiatura.periodo_pago = periodo_custom
+            colegiatura.save(update_fields=['periodo_pago'])
+
     context = {
         'object': colegiatura,
-        'type': 'colegiatura'
+        'type': 'colegiatura',
+        'periodo_impresion': colegiatura.generar_periodo_sugerido()
     }
     return render(request, 'base/reciboPrint.html', context)
 
@@ -214,7 +223,7 @@ def cobros_por_dia(request):
 
     # 1. Colegiaturas PAGADAS en esa fecha
     colegiaturas = Colegiatura.objects.filter(
-        fecha_pago=fecha,
+        Q(fecha_auditoria_pago__date=fecha) | Q(fecha_auditoria_pago__isnull=True, fecha_pago=fecha),
         estado_pago=Colegiatura.PAGADO
     ).select_related('alumno')
 

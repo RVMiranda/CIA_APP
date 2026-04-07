@@ -33,19 +33,19 @@
     grid-template-rows: 50% 50%;
     height: 100vh;
     box-sizing: border-box;
-    padding: 1cm 0;
+    padding: 0.5cm 0;
   }
 
   /* Cada recibo ocupa su celda */
   .recibo-container {
     border: 1px solid #b91c1c;
-    margin: 0 1cm;
+    margin: 0.25cm 1cm;
     padding: 0.75cm;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
+    height: calc(100% - 0.5cm);
   }
 
   /* HEADER: logo, textos y número */
@@ -87,13 +87,21 @@
   }
 
   /* CONTENIDO */
+  .recibo-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.1cm 0.5cm;
+  }
+  .recibo-content .full-width {
+    grid-column: span 2;
+  }
   .recibo-content p {
-    margin: 0.4cm 0;
+    margin: 0.15cm 0;
     font-size: 0.95em;
   }
   .recibo-content p strong {
     display: inline-block;
-    width: 4cm;
+    width: 4.5cm;
   }
 
   /* FOOTER */

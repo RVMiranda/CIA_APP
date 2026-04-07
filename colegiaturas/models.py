@@ -64,6 +64,10 @@ class Colegiatura(models.Model):
     estado_pago = models.CharField(max_length=20, choices=ESTADO_CHOICES, default=PENDIENTE, verbose_name="Estado del Pago")
     fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
 
+    # Nuevos campos sugeridos
+    periodo_pago = models.CharField(max_length=150, null=True, blank=True, verbose_name="Periodo de Pago")
+    fecha_auditoria_pago = models.DateTimeField(null=True, blank=True, verbose_name="Auditoría de Pago")
+
     class Meta:
         verbose_name = "Colegiatura"
         verbose_name_plural = "Colegiaturas"
@@ -100,3 +104,8 @@ class Colegiatura(models.Model):
             self.recargo_aplicado = 0
 
         return max(0, monto)
+
+    def generar_periodo_sugerido(self):
+        if self.periodo_pago:
+            return self.periodo_pago
+        return f"Colegiatura de {self.get_mes_display()} {self.anio}"

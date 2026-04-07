@@ -22,29 +22,33 @@
           <p class="recibo-numero">Recibo No. {{ object.pk|stringformat:"04d" }}</p>
         </div>
         <div class="recibo-content">
-          <p><strong>Nombre del alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }} (Matricula: {{object.alumno.matricula}})</p>
+          <p class="full-width"><strong>Nombre del alumno:</strong> {{ object.alumno.nombre }} {{ object.alumno.apellido }} (Matricula: {{object.alumno.matricula}})</p>
           {% if type == 'inscripcion' %}
-            <p><strong>Concepto:</strong> Inscripción ({{ object.nivel }})</p>
-            <p><strong>Fecha:</strong> {{ object.fecha_inscripcion|date:"Y-m-d" }}</p>
+            <p class="full-width"><strong>Concepto:</strong> Inscripción ({{ object.nivel }})</p>
+            <p><strong>Fecha:</strong> {{ object.fecha_inscripcion|date:"d/m/Y" }}</p>
             <p><strong>Monto:</strong> $ {{ object.monto }}</p>
           {% elif type == 'reinscripcion' %}
-            <p><strong>Concepto:</strong> Reinscripción ({{ object.nivel }})</p>
-            <p><strong>Fecha:</strong> {{ object.fecha_reinscripcion|date:"Y-m-d" }}</p>
+            <p class="full-width"><strong>Concepto:</strong> Reinscripción ({{ object.nivel }})</p>
+            <p><strong>Fecha:</strong> {{ object.fecha_reinscripcion|date:"d/m/Y" }}</p>
             <p><strong>Monto:</strong> $ {{ object.monto }}</p>
           {% else %}
-            <p><strong>Concepto:</strong> Colegiatura {{ object.get_mes_display }} {{ object.anio }}</p>
-            <p><strong>Fecha de vencimiento:</strong> {{ object.fecha_vencimiento|date:"Y-m-d" }}</p>
+            <p class="full-width"><strong>Concepto:</strong> {{ periodo_impresion|default:object.generar_periodo_sugerido }}</p>
             <p><strong>Estado del pago:</strong> {{ object.get_estado_pago_display }}</p>
+            <p><strong>Fecha de vencimiento:</strong> {{ object.fecha_vencimiento|date:"d/m/Y" }}</p>
+            
             <p><strong>Monto base:</strong> $ {{ object.monto_base }}</p>
-            {% if object.estado_pago == 'Atrasado' %}
-              <strong>Recargo aplicado del 1% diario:</strong> ${{ object.recargo_aplicado|floatformat:2 }}
-              <p>
-              <strong>Monto total a pagar:</strong>
-              $ {{ object.calcular_monto_final|floatformat:2 }}
-            </p>
-            {% endif %}           
             {% if object.fecha_pago %}
-              <p><strong>Fecha de pago:</strong> {{ object.fecha_pago|date:"Y-m-d" }}</p>
+              <p><strong>Fecha de pago:</strong> {{ object.fecha_pago|date:"d/m/Y" }}</p>
+            {% else %}
+              <p></p><!-- Celda vacía -->
+            {% endif %}
+
+            {% if object.estado_pago == 'Atrasado' %}
+              <p><strong>Recargo (1% diario):</strong> ${{ object.recargo_aplicado|floatformat:2 }}</p>
+              <p><strong>Monto total a pagar:</strong> $ {{ object.calcular_monto_final|floatformat:2 }}</p>
+            {% endif %}           
+            
+            {% if object.fecha_pago %}
               <p><strong>Monto total pagado:</strong> $ {{ object.monto_pagado }}</p>
             {% endif %}
           {% endif %}
