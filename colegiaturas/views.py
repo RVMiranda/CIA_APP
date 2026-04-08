@@ -265,6 +265,17 @@ def cobros_por_dia(request):
     lista_cobros = []
 
     for c in colegiaturas:
+        # Prevent accessing None attributes.
+        auditoria_date = c.fecha_auditoria_pago.date() if c.fecha_auditoria_pago else c.fecha_pago
+        
+        # Determine if the official payment date was forged (different from the real audit date)
+        if c.fecha_pago and auditoria_date and c.fecha_pago != auditoria_date:
+            accion = 'Editada'
+            clase_alerta = 'bg-red-50'  # ResALTAR la fila entera si quieres
+        else:
+            accion = 'Creada'
+            clase_alerta = ''
+
         lista_cobros.append({
             'alumno': c.alumno,
             'concepto': f"Colegiatura {c.get_mes_display()} {c.anio}",
@@ -272,6 +283,9 @@ def cobros_por_dia(request):
             'descuento_aplicado': c.descuento_aplicado,
             'recargo_aplicado': c.recargo_aplicado,
             'monto_pagado': c.monto_pagado,
+            'accion': accion,
+            'fecha_oficial': c.fecha_pago,
+            'clase_alerta': clase_alerta
         })
 
     for i in inscripciones:
@@ -282,6 +296,9 @@ def cobros_por_dia(request):
             'descuento_aplicado': 0,
             'recargo_aplicado': 0,
             'monto_pagado': i.monto,
+            'accion': 'Creada',
+            'fecha_oficial': i.fecha_inscripcion,
+            'clase_alerta': ''
         })
     
     for r in reinscripciones:
@@ -292,6 +309,9 @@ def cobros_por_dia(request):
             'descuento_aplicado': 0,
             'recargo_aplicado': 0,
             'monto_pagado': r.monto,
+            'accion': 'Creada',
+            'fecha_oficial': r.fecha_reinscripcion,
+            'clase_alerta': ''
         })
 
     context = {
