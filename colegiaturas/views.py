@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Colegiatura, Descuento, Recargo
 from .forms import ColegiaturaPagoForm, DescuentoForm, RecargoForm 
 from alumnos.models import Alumno, Inscripcion, Reinscripcion 
+from grupos.models import GrupoAlumno
 
 def _get_last_day_of_month(year, month):
     return calendar.monthrange(year, month)[1]
@@ -145,6 +146,11 @@ class ColegiaturaDetailView(LoginRequiredMixin, DetailView):
         context['pago_form']  = ColegiaturaPagoForm()
         context['last_generated_colegiatura'] = colegiaturas.order_by('-anio','-mes').first()
         context['titulo']     = f'Historial de Colegiaturas de {alumno.nombre} {alumno.apellido}'
+        
+        # Obtener el grupo actual para mostrar info académica
+        grupo_actual = GrupoAlumno.objects.filter(alumno=alumno).select_related('grupo', 'grupo__nivel').first()
+        context['grupo_actual'] = grupo_actual
+        
         return context
 
     def post(self, request, *args, **kwargs):
@@ -200,14 +206,25 @@ def print_colegiatura_view(request, pk):
 
     if request.method == 'POST':
         periodo_custom = request.POST.get('periodo_pago')
-        if periodo_custom:
+        rango_custom = request.POST.get('rango_periodo')
+        update_fields = []
+        
+        if periodo_custom is not None:
             colegiatura.periodo_pago = periodo_custom
-            colegiatura.save(update_fields=['periodo_pago'])
+            update_fields.append('periodo_pago')
+            
+        if rango_custom is not None:
+            colegiatura.rango_periodo = rango_custom
+            update_fields.append('rango_periodo')
+            
+        if update_fields:
+            colegiatura.save(update_fields=update_fields)
 
     context = {
         'object': colegiatura,
         'type': 'colegiatura',
-        'periodo_impresion': colegiatura.generar_periodo_sugerido()
+        'periodo_impresion': colegiatura.generar_periodo_sugerido(),
+        'rango_impresion': colegiatura.generar_rango_sugerido()
     }
     return render(request, 'base/reciboPrint.html', context)
 

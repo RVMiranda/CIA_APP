@@ -58,8 +58,8 @@
       "title logo"
       "clave numero";
     align-items: center;
-    gap: 0.2cm 0.5cm;   /* fila-gap, columna-gap */
-    margin-bottom: 0.8cm;
+    gap: 0.1cm 0.5cm;
+    margin-bottom: 0.3cm;
   }
   .recibo-header h2 {
     grid-area: title;
@@ -75,7 +75,7 @@
   }
   .recibo-logo {
     grid-area: logo;
-    max-height: 3.5cm;   /* más grande */
+    max-height: 2.5cm;
     max-width: 3.5cm;
     justify-self: end;
   }
@@ -96,8 +96,8 @@
     grid-column: span 2;
   }
   .recibo-content p {
-    margin: 0.15cm 0;
-    font-size: 0.95em;
+    margin: 0.1cm 0;
+    font-size: 0.9em;
   }
   .recibo-content p strong {
     display: inline-block;
@@ -108,7 +108,7 @@
   .recibo-footer {
     text-align: center;
     font-size: 0.75em;
-    margin-top: 1cm;
+    margin-top: 0.3cm;
   }
 
   /* Evita saltos dentro del recibo */

@@ -14,13 +14,27 @@
         <h2 class="text-2xl font-semibold text-gray-800 mb-4">Información del Alumno</h2>
         <p class="text-gray-700 text-lg"><strong>Nombre:</strong> {{ alumno.nombre }} {{ alumno.apellido }}</p>
         <p class="text-gray-700 text-lg"><strong>Matrícula:</strong> {{ alumno.matricula }}</p>
-        <p class="text-gray-700 text-lg"><strong>Estado:</strong>
+        
+        {% if grupo_actual %}
+            <p class="text-gray-700 text-lg mt-2"><strong>Nivel:</strong> {{ grupo_actual.grupo.nivel.nombre }}</p>
+            <p class="text-gray-700 text-lg"><strong>Maestro/Grupo:</strong> {{ grupo_actual.grupo.nombre }}</p>
+        {% else %}
+            <p class="text-gray-700 text-lg mt-2 mb-1"><strong>Maestro/Grupo:</strong> <span class="bg-gray-200 text-gray-800 px-2 rounded-full text-sm font-semibold">Pendiente de asignación</span></p>
+            <div class="mb-2">
+                <a href="{% url 'grupos:lista_grupos' %}" class="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <span>Asignar a un grupo ahora</span>
+                </a>
+            </div>
+        {% endif %}
+
+        <p class="text-gray-700 text-lg mt-2"><strong>Estado:</strong>
             <span class="px-2 inline-flex text-base leading-5 font-semibold rounded-full
                 {% if alumno.activo %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
                 {% if alumno.activo %}Activo{% else %}Inactivo{% endif %}
             </span>
         </p>
-        <div class="mt-4">
+        <div class="mt-4 flex gap-4">
             <a href="{% url 'alumnos:detalleAlumno' pk=alumno.pk %}" class="btn btn-secondary">Ver Detalles del Alumno</a>
         </div>
     </div>
@@ -88,8 +102,12 @@
                                                     <form method="post" action="{% url 'colegiaturas:print_colegiatura' pk=colegiatura.pk %}" target="_blank" @submit="$dispatch('close-modal', { id: 'modal-imprimir-{{ colegiatura.pk }}' })">
                                                         {% csrf_token %}
                                                         <div class="mb-4">
-                                                            <label for="id_periodo_pago_{{ colegiatura.pk }}" class="block text-sm font-medium text-gray-700 text-left mb-1">Periodo Sugerido</label>
+                                                            <label for="id_periodo_pago_{{ colegiatura.pk }}" class="block text-sm font-medium text-gray-700 text-left mb-1">Concepto Sugerido</label>
                                                             <input type="text" id="id_periodo_pago_{{ colegiatura.pk }}" name="periodo_pago" class="input-field w-full p-2 border rounded" value="{{ colegiatura.generar_periodo_sugerido }}" required>
+                                                        </div>
+                                                        <div class="mb-4">
+                                                            <label for="id_rango_periodo_{{ colegiatura.pk }}" class="block text-sm font-medium text-gray-700 text-left mb-1">Fechas del Periodo</label>
+                                                            <input type="text" id="id_rango_periodo_{{ colegiatura.pk }}" name="rango_periodo" class="input-field w-full p-2 border rounded" value="{{ colegiatura.generar_rango_sugerido }}" required>
                                                         </div>
 
                                                         <div class="items-center px-4 py-3">

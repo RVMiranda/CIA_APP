@@ -33,6 +33,7 @@
             <p><strong>Monto:</strong> $ {{ object.monto }}</p>
           {% else %}
             <p class="full-width"><strong>Concepto:</strong> {{ periodo_impresion|default:object.generar_periodo_sugerido }}</p>
+            <p class="full-width"><strong>Periodo de pago:</strong> {{ rango_impresion|default:object.generar_rango_sugerido }}</p>
             <p><strong>Estado del pago:</strong> {{ object.get_estado_pago_display }}</p>
             <p><strong>Fecha de vencimiento:</strong> {{ object.fecha_vencimiento|date:"d/m/Y" }}</p>
             

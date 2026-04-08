@@ -66,6 +66,7 @@ class Colegiatura(models.Model):
 
     # Nuevos campos sugeridos
     periodo_pago = models.CharField(max_length=150, null=True, blank=True, verbose_name="Periodo de Pago")
+    rango_periodo = models.CharField(max_length=150, null=True, blank=True, verbose_name="Rango de Periodo")
     fecha_auditoria_pago = models.DateTimeField(null=True, blank=True, verbose_name="Auditoría de Pago")
 
     class Meta:
@@ -109,3 +110,30 @@ class Colegiatura(models.Model):
         if self.periodo_pago:
             return self.periodo_pago
         return f"Colegiatura de {self.get_mes_display()} {self.anio}"
+
+    def generar_rango_sugerido(self):
+        if self.rango_periodo:
+            return self.rango_periodo
+            
+        meses = {1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio", 
+                 7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"}
+                 
+        import calendar
+        from datetime import date, timedelta
+        
+        dia_pref = self.alumno.dia_pago_preferido
+        
+        # Fecha base: el día de pago preferido de este anio/mes
+        dia_base = min(dia_pref, calendar.monthrange(self.anio, self.mes)[1])
+        fecha_base = date(self.anio, self.mes, dia_base)
+        fecha_inicio = fecha_base + timedelta(days=1)
+        
+        # Mes siguiente
+        mes_siguiente = self.mes % 12 + 1
+        anio_siguiente = self.anio + (1 if self.mes == 12 else 0)
+        
+        dia_fin_base = min(dia_pref, calendar.monthrange(anio_siguiente, mes_siguiente)[1])
+        fecha_fin_base = date(anio_siguiente, mes_siguiente, dia_fin_base)
+        fecha_fin = fecha_fin_base - timedelta(days=1)
+        
+        return f"{fecha_inicio.day:02d} {meses[fecha_inicio.month]} - {fecha_fin.day:02d} {meses[fecha_fin.month]}"
