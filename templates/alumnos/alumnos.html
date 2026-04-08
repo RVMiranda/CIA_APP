@@ -90,35 +90,8 @@
         </table>
       </div>
 
-      <!-- Paginación -->
-      <nav class="mt-8 flex justify-center" aria-label="Pagination">
-        <ul class="flex items-center space-x-2">
-          {% if page_obj.has_previous %}
-            <li><a href="?page={{ page_obj.previous_page_number }}&estado={{ estado_seleccionado }}{% if search_query %}&q={{ search_query }}{% endif %}{% if nivel_seleccionado %}&nivel={{ nivel_seleccionado }}{% endif %}"
-                   class="pagination-link">Anterior</a>
-            </li>
-          {% else %}
-            <li><span class="pagination-link disabled">Anterior</span></li>
-          {% endif %}
-
-          {% for i in page_obj.paginator.page_range %}
-            <li>
-              <a href="?page={{ i }}&estado={{ estado_seleccionado }}{% if search_query %}&q={{ search_query }}{% endif %}{% if nivel_seleccionado %}&nivel={{ nivel_seleccionado }}{% endif %}"
-                 class="pagination-link {% if page_obj.number == i %}active{% endif %}">
-                {{ i }}
-              </a>
-            </li>
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-            <li><a href="?page={{ page_obj.next_page_number }}&estado={{ estado_seleccionado }}{% if search_query %}&q={{ search_query }}{% endif %}{% if nivel_seleccionado %}&nivel={{ nivel_seleccionado }}{% endif %}"
-                   class="pagination-link">Siguiente</a>
-            </li>
-          {% else %}
-            <li><span class="pagination-link disabled">Siguiente</span></li>
-          {% endif %}
-        </ul>
-      </nav>
+      <!-- Paginación Elegante Integrada -->
+      {% include 'base/pagination.html' %}
 
     {% else %}
       <p class="text-center text-gray-600 py-8">

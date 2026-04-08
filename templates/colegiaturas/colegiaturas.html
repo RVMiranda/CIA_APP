@@ -116,35 +116,8 @@
                 </table>
             </div>
 
-            <!-- Paginación -->
-            <nav class="mt-8 flex justify-center" aria-label="Pagination">
-                <ul class="flex items-center space-x-2">
-                    {% if page_obj.has_previous %}
-                        <li><a href="?page={{ page_obj.previous_page_number }}{% if alumno_seleccionado %}&alumno={{ alumno_seleccionado }}{% endif %}{% if mes_seleccionado %}&mes={{ mes_seleccionado }}{% endif %}{% if anio_seleccionado %}&anio={{ anio_seleccionado }}{% endif %}{% if estado_seleccionado %}&estado={{ estado_seleccionado }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
-                               class="pagination-link">Anterior</a>
-                        </li>
-                    {% else %}
-                        <li><span class="pagination-link disabled">Anterior</span></li>
-                    {% endif %}
-
-                    {% for i in paginator.page_range %}
-                        <li>
-                            <a href="?page={{ i }}{% if alumno_seleccionado %}&alumno={{ alumno_seleccionado }}{% endif %}{% if mes_seleccionado %}&mes={{ mes_seleccionado }}{% endif %}{% if anio_seleccionado %}&anio={{ anio_seleccionado }}{% endif %}{% if estado_seleccionado %}&estado={{ estado_seleccionado }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
-                               class="pagination-link {% if page_obj.number == i %}active{% endif %}">
-                                {{ i }}
-                            </a>
-                        </li>
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                        <li><a href="?page={{ page_obj.next_page_number }}{% if alumno_seleccionado %}&alumno={{ alumno_seleccionado }}{% endif %}{% if mes_seleccionado %}&mes={{ mes_seleccionado }}{% endif %}{% if anio_seleccionado %}&anio={{ anio_seleccionado }}{% endif %}{% if estado_seleccionado %}&estado={{ estado_seleccionado }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
-                               class="pagination-link">Siguiente</a>
-                        </li>
-                    {% else %}
-                        <li><span class="pagination-link disabled">Siguiente</span></li>
-                    {% endif %}
-                </ul>
-            </nav>
+            <!-- Paginación Elegante Integrada -->
+            {% include 'base/pagination.html' %}
 
         {% else %}
             <p class="text-center text-gray-600 py-8">No se encontraron colegiaturas que coincidan con los criterios de búsqueda.</p>

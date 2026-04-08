@@ -1,0 +1,48 @@
+{% load pagination_tags %}
+
+{% if page_obj.has_other_pages %}
+<div class="mt-8 flex justify-center">
+    <nav aria-label="Page navigation">
+        <ul class="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+            <!-- Botón Anterior -->
+            {% if page_obj.has_previous %}
+                <li>
+                    <a href="?{% param_replace page=page_obj.previous_page_number %}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                        &laquo; Anterior
+                    </a>
+                </li>
+            {% endif %}
+
+            <!-- Números de Página (con elipsis) -->
+            {% get_elided_page_range page_obj.paginator page_obj.number as page_range %}
+            {% for i in page_range %}
+                {% if i == page_obj.paginator.ELLIPSIS %}
+                    <li>
+                        <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="?{% param_replace page=i %}" class="px-3 py-2 text-sm font-medium border rounded transition-colors
+                           {% if page_obj.number == i %}
+                               bg-red-600 text-white border-red-600 font-bold
+                           {% else %}
+                               bg-white text-gray-700 border-gray-300 hover:bg-gray-50
+                           {% endif %}">
+                            {{ i }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Botón Siguiente -->
+            {% if page_obj.has_next %}
+                <li>
+                    <a href="?{% param_replace page=page_obj.next_page_number %}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                        Siguiente &raquo;
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
